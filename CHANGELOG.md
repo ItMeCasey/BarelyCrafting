@@ -1,0 +1,11 @@
+# Changelog
+
+## 2026.11.1
+
+First version. One jar per Minecraft version (26.2 and 26.3), each for Forge and NeoForge.
+
+- Crafting Station block: a 3x3 grid that keeps its items in the block, a result slot and your inventory.
+- Crafts from the storages next to it (all six sides, in a set order); the grid is used first and emptied slots are refilled from the neighbors.
+- Shift-click on the result crafts as many as possible; leftovers such as empty buckets are handled without losing anything.
+- Six buttons left of the grid: Clear, Rotate, Mirror, Balance, Refill and Craft All, each with a tooltip and a config switch.
+- BEI: the plus button of a crafting recipe fills the grid.

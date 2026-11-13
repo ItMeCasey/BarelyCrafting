@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "barelycrafting:block/crafting_station"
+  }
+}

@@ -1,0 +1,58 @@
+name: Crafting problem
+description: Crafting from neighboring storage, a button or the result slot does something different from what the wiki says.
+title: "[Crafting] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Barely Crafting never deletes items on purpose. If items went missing or doubled, say exactly what was in the grid, in the neighboring storages and in your inventory before and after.
+  - type: dropdown
+    id: area
+    attributes:
+      label: What went wrong
+      options:
+        - Items missing or doubled
+        - A neighboring storage is not used
+        - A grid button does the wrong thing
+        - Shift-click or Craft All stops early
+        - Leftover item (bucket, tool) in the wrong place
+        - Recipe viewer plus button
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: shown
+    attributes:
+      label: What happened
+      description: The grid, the storages next to the station and your inventory before and after, or a screenshot.
+    validations:
+      required: true
+  - type: input
+    id: storage
+    attributes:
+      label: The storage block or mod next to the station
+      placeholder: Chest, Barrel, a drawer or backpack mod block
+  - type: textarea
+    id: config
+    attributes:
+      label: Changes to config/barelycrafting.properties
+      description: Only the lines you changed, if any.
+  - type: input
+    id: version
+    attributes:
+      label: Barely Crafting version
+    validations:
+      required: true
+  - type: input
+    id: minecraft
+    attributes:
+      label: Minecraft and loader versions
+      placeholder: Minecraft 26.2, NeoForge ...
+    validations:
+      required: true
+  - type: textarea
+    id: mods
+    attributes:
+      label: Other mods
+      description: Especially storage mods and recipe viewers.

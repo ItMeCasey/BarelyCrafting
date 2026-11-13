@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "barelycrafting:block/crafting_station" }
+  }
+}

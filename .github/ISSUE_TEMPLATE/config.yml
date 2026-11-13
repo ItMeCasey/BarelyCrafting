@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: How Barely Crafting works and what it covers
+    url: https://itmecasey.com/wiki/barelycrafting/
+    about: The crafting rules, which neighbors are used, the buttons and the config file. Read this first.
+  - name: Troubleshooting
+    url: https://itmecasey.com/wiki/barelycrafting/?p=troubleshooting
+    about: Items that go missing, a chest that is not used and the settings that switch things off.
