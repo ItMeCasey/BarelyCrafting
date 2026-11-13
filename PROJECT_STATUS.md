@@ -1,13 +1,13 @@
 # Project Status
 <!-- status-format: 1 -->
 Updated: 2026-11-13
-Summary: Barely Crafting 2026.11.1 is built on Forge and NeoForge for 26.2 and 26.3 (tests, headless self test and real-client frames done); committed locally, not pushed, no GitHub repo, CurseForge project or wiki deploy yet.
+Summary: Barely Crafting 2026.11.2 (2026.11.1 released) is built on Forge and NeoForge for 26.2 and 26.3 (tests, headless self test and real-client frames done); committed locally, not pushed, no GitHub repo, CurseForge project or wiki deploy yet.
 Spend: none
 
 ## Foundation
 - [x] Plan and decisions written (PLAN.md) (w:2)
 - [x] Four Gradle modules (forge and neoforge for 26.2 and 26.3) with shared common/ and version-26.x folders (w:4)
-- [x] Version 2026.11.1 in all four modules (w:1)
+- [x] Version 2026.11.2 in all four modules (w:1)
 - [x] Local git repository with first commit (w:1)
 
 ## Crafting Station
@@ -23,13 +23,14 @@ Spend: none
 - [x] Pedestal block model made in Blockbench (stone foot, column and cap, wooden table slab with the 3x3 grid, rim and metal corner posts), source in branding/models/station.bbmodel, matching selection shape, item display transforms; frames from top, two sides, hand and inventory on NeoForge 26.2 and Forge 26.3 (w:4)
 
 ## Testing
-- [x] Unit tests of the pure logic (25 per module, all four modules) (w:3)
+- [x] Unit tests of the pure logic and the script bridge (all four modules) (w:3)
 - [x] Headless server self test, 42 checks, on all four layers (w:4)
 - [x] Real-client frames on NeoForge 26.2 and Forge 26.3 (isolated launcher): block, screen, tooltip over buttons, rotate, craft from chest (w:4)
 - [ ] BEI plus button run in a real client (w:2)
 - [ ] Real client on Forge 26.2 and NeoForge 26.3 (w:2)
 
 ## Compatibility
+- [x] ModJS scripting: BarelyCrafting global (craft and button events, station snapshot, recipe rules), unit tests with Rhino, live-server checks, docs/scripting.md and wiki page (w:3)
 - [~] BEI done; JEI, REI and EMI plus buttons not written; SMWTI and Jade lines not written (known gaps) (w:3)
 - [ ] Craft events for other mods (ItemCraftedEvent) (w:2)
 

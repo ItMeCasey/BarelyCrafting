@@ -12,5 +12,6 @@ public final class BarelyCrafting {
 
     public static void init(Supplier<Path> configDir) {
         Settings.loadFile(configDir.get().resolve(MODID + ".properties"));
+        com.itmecasey.barelycrafting.script.ModJsBridge.install(new com.itmecasey.barelycrafting.script.BarelyCraftingApi());
     }
 }

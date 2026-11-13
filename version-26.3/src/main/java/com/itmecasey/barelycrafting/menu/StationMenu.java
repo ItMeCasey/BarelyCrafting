@@ -64,6 +64,8 @@ public class StationMenu extends AbstractContainerMenu {
     public static final int BTN_BALANCE = 4;
     public static final int BTN_REFILL = 5;
     public static final int BTN_CRAFT_ALL = 6;
+    /** The names ModJS scripts see for buttons 1 to 6. */
+    private static final String[] BUTTON_NAMES = {"clear", "rotate", "mirror", "balance", "refill", "craft_all"};
     /** Used by recipe viewers: empties the grid (not controlled by the button settings). */
     public static final int BTN_FILL_START = 100;
     /** Used by recipe viewers: {@code BTN_FILL + slot * FILL_STRIDE + item registry id} puts one of that item in a grid slot. */
@@ -341,7 +343,7 @@ public class StationMenu extends AbstractContainerMenu {
     private void resultClick(ServerLevel server, ServerPlayer player, ContainerInput input) {
         List<ExternalInventory> neighbors = Neighbors.scan(server, pos);
         if (input == ContainerInput.QUICK_MOVE) {
-            Crafter.craftMax(server, grid, neighbors, player);
+            Crafter.craftMax(server, grid, neighbors, player, pos);
         } else if (input == ContainerInput.PICKUP) {
             ItemStack preview = Crafter.preview(server, grid);
             if (preview.isEmpty()) {
@@ -352,7 +354,7 @@ public class StationMenu extends AbstractContainerMenu {
                     || carried.getCount() + preview.getCount() > carried.getMaxStackSize())) {
                 return;
             }
-            ItemStack out = Crafter.craftOnce(server, grid, neighbors, player);
+            ItemStack out = Crafter.craftOnce(server, grid, neighbors, player, pos);
             if (out.isEmpty()) {
                 return;
             }
@@ -389,6 +391,12 @@ public class StationMenu extends AbstractContainerMenu {
             int code = id - BTN_FILL;
             fillSlot(code / FILL_STRIDE, code % FILL_STRIDE, sp, neighbors);
             return true;
+        }
+        String buttonName = id >= BTN_CLEAR && id <= BTN_CRAFT_ALL ? BUTTON_NAMES[id - BTN_CLEAR] : null;
+        if (buttonName != null && com.itmecasey.barelycrafting.script.ScriptEvents.fire(
+                com.itmecasey.barelycrafting.script.ScriptEvents.BUTTON, () -> com.itmecasey.barelycrafting.Crafter.snapshot(server, pos, grid),
+                sp.getName().getString(), sp.getStringUUID(), "", 0, buttonName)) {
+            return false;
         }
         switch (id) {
             case BTN_FILL_START -> clearGrid(sp, neighbors);
@@ -430,7 +438,7 @@ public class StationMenu extends AbstractContainerMenu {
                 if (!Settings.getBool("buttons.craft_all")) {
                     return false;
                 }
-                Crafter.craftMax(server, grid, neighbors, sp);
+                Crafter.craftMax(server, grid, neighbors, sp, pos);
             }
             default -> {
                 return false;

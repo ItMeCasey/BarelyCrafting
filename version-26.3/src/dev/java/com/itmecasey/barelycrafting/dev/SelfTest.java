@@ -66,6 +66,7 @@ public final class SelfTest {
             resultEdgeCases(new BlockPos(x, y, z + 44));
             pickaxeConservation(new BlockPos(x, y, z + 48));
             connectedList(new BlockPos(x, y, z + 52));
+            scriptHooks(new BlockPos(x, y, z + 56));
         } catch (RuntimeException e) {
             LOGGER.error("SELFTEST error", e);
             verdict("selftest_ran_clean", false, e.toString());
@@ -429,5 +430,57 @@ public final class SelfTest {
         int sticks = count(player.getInventory(), Items.STICK) + count(be.grid, Items.STICK) + count(chest, Items.STICK);
         verdict("pickaxe_craft_conserves_cobblestone_and_sticks_and_stops_at_a_different_recipe", cobble + picks * 3 == 70 && sticks + picks * 2 == 34 && count(player.getInventory(), Items.COBBLESTONE_SLAB) == 0,
                 "picks=" + picks + " cobble=" + cobble + " (expect " + (70 - picks * 3) + ") sticks=" + sticks + " (expect " + (34 - picks * 2) + ")");
+    }
+
+    /** ModJS script hooks, driven with the same listener objects a script would register (no ModJS needed). */
+    private static void scriptHooks(BlockPos p) {
+        area(p);
+        com.itmecasey.barelycrafting.script.ScriptEvents.clear();
+        com.itmecasey.barelycrafting.script.ScriptHooks.clear();
+        try {
+            verdict("modjs_global_absent_without_modjs", !com.itmecasey.barelycrafting.script.ModJsBridge.install(new com.itmecasey.barelycrafting.script.BarelyCraftingApi()), "ModJS is not on this classpath");
+            com.itmecasey.barelycrafting.script.BarelyCraftingApi api = new com.itmecasey.barelycrafting.script.BarelyCraftingApi();
+            StationBlockEntity be = station(p);
+            chest(p.east()).setItem(0, new ItemStack(Items.OAK_PLANKS, 8));
+            planks2x2(be, 1);
+            StationMenu menu = open(be);
+            String[] seen = new String[3];
+            api.onBeforeCraft(e -> {
+                seen[0] = e.station().slot(0) + "|" + e.station().storages().size() + "|" + e.station().result() + "|" + e.result();
+                if (seen[2] != null) {
+                    e.cancel();
+                }
+            });
+            api.onCrafted(e -> seen[1] = e.result() + "x" + e.count());
+            menu.clicked(StationMenu.RESULT, 0, ContainerInput.PICKUP, player);
+            verdict("script_events_fire_with_station_data", menu.getCarried().is(Items.CRAFTING_TABLE) && "1 minecraft:oak_planks|1|1 minecraft:crafting_table|minecraft:crafting_table".equals(seen[0])
+                    && "minecraft:crafting_tablex1".equals(seen[1]), "before=" + seen[0] + " crafted=" + seen[1]);
+            menu.setCarried(ItemStack.EMPTY);
+            seen[2] = "cancel";
+            menu.broadcastChanges();
+            int before = count(be.grid, Items.OAK_PLANKS);
+            menu.clicked(StationMenu.RESULT, 0, ContainerInput.PICKUP, player);
+            verdict("cancelled_craft_makes_nothing_and_uses_nothing", menu.getCarried().isEmpty() && count(be.grid, Items.OAK_PLANKS) == before, "carried=" + menu.getCarried());
+            com.itmecasey.barelycrafting.script.ScriptEvents.clear();
+            String[] button = new String[1];
+            api.onButton(e -> {
+                button[0] = e.button();
+                e.cancel();
+            });
+            be.grid.clearContent();
+            be.grid.setItem(0, new ItemStack(Items.OAK_PLANKS, 5));
+            menu.clickMenuButton(player, StationMenu.BTN_CLEAR);
+            verdict("cancelled_button_does_nothing", "clear".equals(button[0]) && count(be.grid, Items.OAK_PLANKS) == 5, "button=" + button[0]);
+            com.itmecasey.barelycrafting.script.ScriptEvents.clear();
+            api.denyResult("minecraft:crafting_table");
+            planks2x2(be, 1);
+            menu.broadcastChanges();
+            verdict("denied_result_is_not_crafted", Crafter.preview(level, be.grid).isEmpty(), "preview=" + Crafter.preview(level, be.grid));
+            api.reset();
+            verdict("reset_restores_the_recipe", Crafter.preview(level, be.grid).is(Items.CRAFTING_TABLE), "preview=" + Crafter.preview(level, be.grid));
+        } finally {
+            com.itmecasey.barelycrafting.script.ScriptEvents.clear();
+            com.itmecasey.barelycrafting.script.ScriptHooks.clear();
+        }
     }
 }

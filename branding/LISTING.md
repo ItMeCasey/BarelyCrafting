@@ -39,4 +39,3 @@ Files are in `branding/icon/` and `branding/banners/` (made with `scripts/make_b
 1. Push `branding/` so the description images load.
 2. Create the CurseForge project, record the id, add the repository secrets.
 3. Set `banners/social.png` as the GitHub social preview.
-4. Update the Tested line in the description at release.

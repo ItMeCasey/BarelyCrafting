@@ -3,6 +3,11 @@ package com.itmecasey.barelycrafting;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import com.itmecasey.barelycrafting.script.ScriptEvents;
+import com.itmecasey.barelycrafting.script.ScriptHooks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -35,15 +40,33 @@ public final class Crafter {
         return CraftingInput.of(3, 3, items);
     }
 
+    /** A read-only snapshot of a station for ModJS script events. */
+    public static com.itmecasey.barelycrafting.script.StationInfo snapshot(ServerLevel level, BlockPos pos, Container grid) {
+        return StationSnapshot.of(level, pos, grid);
+    }
+
+    /** The game's recipe lookup, minus any recipe a ModJS script took away from the station. */
+    private static Optional<RecipeHolder<CraftingRecipe>> lookup(ServerLevel level, CraftingInput input) {
+        Optional<RecipeHolder<CraftingRecipe>> found = level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
+        if (found.isPresent()) {
+            ItemStack made = found.get().value().assemble(input);
+            String item = made.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(made.getItem()).toString();
+            if (!ScriptHooks.allowed(found.get().id().identifier().toString(), item)) {
+                return Optional.empty();
+            }
+        }
+        return found;
+    }
+
     /** The recipe the grid currently matches, if any. */
     public static Optional<RecipeHolder<CraftingRecipe>> find(ServerLevel level, Container grid) {
-        return level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input(grid), level);
+        return lookup(level, input(grid));
     }
 
     /** What one craft would produce right now (empty when the grid matches no recipe). The grid is not changed. */
     public static ItemStack preview(ServerLevel level, Container grid) {
         CraftingInput input = input(grid);
-        Optional<RecipeHolder<CraftingRecipe>> found = level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
+        Optional<RecipeHolder<CraftingRecipe>> found = lookup(level, input);
         return found.isPresent() ? found.get().value().assemble(input) : ItemStack.EMPTY;
     }
 
@@ -52,14 +75,24 @@ public final class Crafter {
      * Ingredients come from the grid; emptied slots are refilled from the neighbors; leftovers are stored as described above.
      */
     public static ItemStack craftOnce(ServerLevel level, Container grid, List<ExternalInventory> neighbors, ServerPlayer player) {
+        return craftOnce(level, grid, neighbors, player, null);
+    }
+
+    /** As {@link #craftOnce(ServerLevel, Container, List, ServerPlayer)}; with the station's position, ModJS script events fire. */
+    public static ItemStack craftOnce(ServerLevel level, Container grid, List<ExternalInventory> neighbors, ServerPlayer player, @Nullable BlockPos station) {
         CraftingInput input = input(grid);
-        Optional<RecipeHolder<CraftingRecipe>> found = level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
+        Optional<RecipeHolder<CraftingRecipe>> found = lookup(level, input);
         if (found.isEmpty()) {
             return ItemStack.EMPTY;
         }
         RecipeHolder<CraftingRecipe> holder = found.get();
         ItemStack out = holder.value().assemble(input);
         if (out.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        String outId = BuiltInRegistries.ITEM.getKey(out.getItem()).toString();
+        if (station != null && ScriptEvents.fire(ScriptEvents.BEFORE_CRAFT, () -> StationSnapshot.of(level, station, grid),
+                player.getName().getString(), player.getStringUUID(), outId, out.getCount(), "")) {
             return ItemStack.EMPTY;
         }
         List<ItemStack> remainders = holder.value().getRemainingItems(input);
@@ -98,6 +131,10 @@ public final class Crafter {
             stash(extra, neighbors, player);
         }
         out.onCraftedBy(player, out.getCount());
+        if (station != null) {
+            ScriptEvents.fire(ScriptEvents.CRAFTED, () -> StationSnapshot.of(level, station, grid),
+                    player.getName().getString(), player.getStringUUID(), outId, out.getCount(), "");
+        }
         return out;
     }
 
@@ -108,6 +145,11 @@ public final class Crafter {
      * @return the number of crafts
      */
     public static int craftMax(ServerLevel level, Container grid, List<ExternalInventory> neighbors, ServerPlayer player) {
+        return craftMax(level, grid, neighbors, player, null);
+    }
+
+    /** As {@link #craftMax(ServerLevel, Container, List, ServerPlayer)}; with the station's position, ModJS script events fire. */
+    public static int craftMax(ServerLevel level, Container grid, List<ExternalInventory> neighbors, ServerPlayer player, @Nullable BlockPos station) {
         int limit = Math.max(1, Settings.getInt("craft.max_per_click"));
         int crafts = 0;
         ItemStack first = ItemStack.EMPTY;
@@ -121,7 +163,7 @@ public final class Crafter {
             } else if (!ItemStack.isSameItemSameComponents(first, preview)) {
                 break; // the leftovers now match a different recipe (like three cobblestone making slabs): stop, as a crafting table does
             }
-            ItemStack out = craftOnce(level, grid, neighbors, player);
+            ItemStack out = craftOnce(level, grid, neighbors, player, station);
             if (out.isEmpty()) {
                 break;
             }

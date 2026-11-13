@@ -42,3 +42,7 @@ CI builds only the modules a change touches (`.github/scripts/plan_matrix.py`).
 ## Status
 
 See `PROJECT_STATUS.md`. Honest limits are in the wiki page "Versions and known gaps".
+
+## Scripting
+
+With ModJS installed, server scripts get a `BarelyCrafting` global (craft and button events, station data, recipe rules). Reference: [docs/scripting.md](docs/scripting.md).

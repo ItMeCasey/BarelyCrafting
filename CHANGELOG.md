@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.11.2
+
+- ModJS scripting (optional): a `BarelyCrafting` global for server scripts with `onBeforeCraft` and `onButton` (both cancellable), `onCrafted`, a read-only station snapshot (grid, result, connected storages), recipe rules (`denyRecipe`, `denyResult`, `allowOnly`), `setting` and `reset`. See docs/scripting.md.
+- No hint text found in the game: names, values and the storage tab tooltip are the only text.
+
 ## 2026.11.1
 
 First version. One jar per Minecraft version (26.2 and 26.3), each for Forge and NeoForge.
