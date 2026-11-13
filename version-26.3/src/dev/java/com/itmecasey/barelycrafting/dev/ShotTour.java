@@ -1,6 +1,8 @@
 package com.itmecasey.barelycrafting.dev;
 
 import com.itmecasey.barelycrafting.Dev;
+import com.itmecasey.barelycrafting.ExternalInventory;
+import com.itmecasey.barelycrafting.Inventories;
 import com.itmecasey.barelycrafting.ModContent;
 import com.itmecasey.barelycrafting.block.StationBlockEntity;
 import com.itmecasey.barelycrafting.menu.StationMenu;
@@ -158,6 +160,8 @@ public final class ShotTour {
         });
         then(4, () -> {
             server("fill -4 " + (y - 1) + " -4 6 " + (y - 1) + " 4 minecraft:smooth_stone");
+            installBigStorage();
+            server("setblock 0 " + (y + 1) + " 0 minecraft:gold_block");
             server("setblock 0 " + y + " 0 barelycrafting:crafting_station", "setblock 1 " + y + " 0 minecraft:chest[facing=west]",
                     "setblock -1 " + y + " 0 minecraft:barrel[facing=up]");
         });
@@ -192,7 +196,7 @@ public final class ShotTour {
         shoot("gui_tooltip_mirror", 50);
         // Rotate with the real button, then craft everything through the result slot.
         then(3, () -> hoverGuiAway());
-        then(3, () -> press(StationMenu.BTN_TAB + 1));
+        then(3, () -> press(StationMenu.BTN_TAB + 2));
         shoot("gui_chest_tab", 25);
         then(3, () -> press(StationMenu.BTN_ROTATE));
         shoot("gui_after_rotate", 25);
@@ -225,8 +229,65 @@ public final class ShotTour {
             LOGGER.info("BARELYCRAFTING-SHOTS after shift-click: pickaxes={} cobbleInChest={} gridEmpty={}", pick, cobble, be.grid.isEmpty());
         }));
         shoot("gui_after_craft", 15);
+        // The big storage: its tab, then the wheel scrolls its window down to row 12 and the mouse rests on an item.
+        then(3, () -> press(StationMenu.BTN_TAB));
+        then(15, () -> wheel(12));
+        then(25, () -> hoverViewSlot(10));
+        then(40, () -> LOGGER.info("BARELYCRAFTING-SHOTS big storage scroll row={} tab={} first={}", menu().viewScroll(), menu().selectedTab(), menu().slots.get(StationMenu.PLAYER_END).getItem()));
+        shoot("gui_scrolled_big_storage", 10);
         then(2, () -> close());
         then(20, () -> quit(Minecraft.getInstance()));
+    }
+
+    /** A dev-only 216-slot storage standing in for a modded one (vanilla has nothing over 54 slots). Read-only: nothing can be taken or put in. */
+    private static final class BigStorage implements ExternalInventory {
+        private static final net.minecraft.world.item.Item[] ITEMS = {Items.DIAMOND, Items.EMERALD, Items.GOLD_INGOT, Items.REDSTONE, Items.COAL, Items.BREAD, Items.APPLE, Items.ARROW};
+
+        @Override
+        public int slots() {
+            return 216;
+        }
+
+        @Override
+        public ItemStack get(int slot) {
+            return new ItemStack(ITEMS[slot % ITEMS.length], slot % 63 + 1);
+        }
+
+        @Override
+        public ItemStack insert(ItemStack stack, boolean simulate) {
+            return stack;
+        }
+
+        @Override
+        public ItemStack extract(int slot, int amount, boolean simulate) {
+            return ItemStack.EMPTY;
+        }
+    }
+
+    private static void installBigStorage() {
+        Inventories.Finder base = Inventories.loaderFinder;
+        Inventories.loaderFinder = (level, pos, face) -> level.getBlockState(pos).is(net.minecraft.world.level.block.Blocks.GOLD_BLOCK) ? new BigStorage() : base.find(level, pos, face);
+    }
+
+    /** Scrolls the open screen with the mouse wheel through the screen's own handler, as a player would over the Connected panel. */
+    private static void wheel(int clicks) {
+        var screen = Minecraft.getInstance().gui.screen();
+        if (screen instanceof com.itmecasey.barelycrafting.client.StationScreen station) {
+            double x = station.guiLeft() - 192 + 60;
+            double y = station.guiTop() + 100;
+            for (int i = 0; i < clicks; i++) {
+                station.mouseScrolled(x, y, 0.0, -1.0);
+            }
+        }
+    }
+
+    private static void hoverViewSlot(int k) {
+        var screen = Minecraft.getInstance().gui.screen();
+        var m = menu();
+        if (m != null && screen instanceof com.itmecasey.barelycrafting.client.StationScreen station) {
+            var slot = m.slots.get(StationMenu.PLAYER_END + k);
+            moveMouseGui(station.guiLeft() + slot.x + 8, station.guiTop() + slot.y + 8);
+        }
     }
 
     // ---- helpers ----

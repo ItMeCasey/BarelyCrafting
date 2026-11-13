@@ -14,7 +14,7 @@ Spend: none
 - [x] Block, block entity and menu with a persistent 3x3 grid (saved per slot, drops on break) (w:4)
 - [x] Result slot: click, shift-click craft-max, leftovers, full inventory, mismatched cursor (w:4)
 - [x] Crafting from neighboring storages (six sides, set order, grid first then neighbors, refill) (w:5)
-- [x] Connected panel: block-icon tab per storage, real slots, per-storage scrolling (scroll math unit-tested; the scrolling itself not seen on a storage over 54 slots) (w:4)
+- [x] Connected panel: block-icon tab per storage, real slots, per-storage wheel and bar scrolling, windowed sync, no cap on storages or slots; seen scrolled next to a dev-only 216-slot storage on NeoForge 26.2 and Forge 26.3 (w:4)
 - [x] Button column: clear, rotate, mirror, balance, refill, craft all, tooltips on top, config switches (w:4)
 - [x] BEI plus button fills the grid (compiled; the BEI transfer itself not run in a client) (w:2)
 
