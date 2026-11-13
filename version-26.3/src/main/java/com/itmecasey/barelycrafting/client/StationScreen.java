@@ -50,7 +50,7 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
                 continue;
             }
             int id = s.id;
-            addRenderableWidget(new IconButton(leftPos + 7 + (row % 2) * 18, topPos + StationMenu.GRID_Y + (row / 2) * 19, s.icon,
+            addRenderableWidget(new IconButton(leftPos + 15 + (row % 2) * 18, topPos + StationMenu.GRID_Y + (row / 2) * 19, s.icon,
                     Component.translatable("gui.barelycrafting.tip_" + s.key), s.usable, () -> press(id)));
             row++;
         }
@@ -132,8 +132,8 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
             inset(g, leftPos + s.x - 1, topPos + s.y - 1, 18, 18);
         }
         // The arrow from the grid to the result.
-        int ax = leftPos + 105;
-        int ay = topPos + 41;
+        int ax = leftPos + 113;
+        int ay = topPos + 55;
         g.fill(ax, ay + 2, ax + 14, ay + 8, th().arrow());
         for (int i = 0; i < 6; i++) {
             g.fill(ax + 14 + i, ay + i, ax + 15 + i, ay + 10 - i, th().arrow());

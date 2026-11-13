@@ -333,7 +333,7 @@ public final class ShotTour {
         }
         int left = station.guiLeft();
         int top = station.guiTop();
-        moveMouseGui(left + 7 + (n % 2) * 18 + 8, top + 19 + (n / 2) * 19 + 8);
+        moveMouseGui(left + 15 + (n % 2) * 18 + 8, top + 33 + (n / 2) * 19 + 8);
     }
 
     private static void hoverGuiAway() {

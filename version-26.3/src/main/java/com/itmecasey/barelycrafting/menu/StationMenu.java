@@ -41,10 +41,10 @@ public class StationMenu extends AbstractContainerMenu {
     public static final int GRID = 9;
     public static final int RESULT = 9;
     public static final int FIRST_PLAYER = 10;
-    public static final int GRID_X = 48;
-    public static final int GRID_Y = 19;
-    public static final int RESULT_X = 132;
-    public static final int RESULT_Y = 37;
+    public static final int GRID_X = 56;
+    public static final int GRID_Y = 33;
+    public static final int RESULT_X = 140;
+    public static final int RESULT_Y = 51;
     public static final int PLAYER_Y = 116;
     public static final int PLAYER_END = FIRST_PLAYER + 36;
     /** The Connected panel shows the selected storage as a window of 9 by 6 slots; tabs pick the storage, the wheel scrolls it. */
