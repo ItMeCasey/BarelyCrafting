@@ -41,7 +41,7 @@ public class StationMenu extends AbstractContainerMenu {
     public static final int GRID = 9;
     public static final int RESULT = 9;
     public static final int FIRST_PLAYER = 10;
-    public static final int GRID_X = 36;
+    public static final int GRID_X = 48;
     public static final int GRID_Y = 19;
     public static final int RESULT_X = 132;
     public static final int RESULT_Y = 37;
@@ -52,7 +52,7 @@ public class StationMenu extends AbstractContainerMenu {
     public static final int VIEW_ROWS = 6;
     public static final int VIEW_PER = VIEW_COLS * VIEW_ROWS;
     public static final int VIEW_X = -184;
-    public static final int VIEW_Y = 54;
+    public static final int VIEW_Y = 34;
     public static final int BTN_TAB = 200;
     /** {@code BTN_SCROLL + tab * 10000 + row} sets the first visible row of one storage. */
     public static final int BTN_SCROLL = 1_000_000;

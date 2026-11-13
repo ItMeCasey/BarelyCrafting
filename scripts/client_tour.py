@@ -40,6 +40,11 @@ def write_options(run):
     path.write_text("\n".join(out) + "\n", encoding="utf-8")
 
 
+def launcher_log():
+    path = Path.home() / "AppData" / "Local" / "launch-isolated" / "MCTest.log"
+    return path.read_text(encoding="utf-8", errors="replace") if path.exists() else ""
+
+
 def tour(layer):
     folder = ROOT / layer
     run = folder / "run"
@@ -57,6 +62,8 @@ def tour(layer):
     try:
         while time.time() - start < TIMEOUT:
             time.sleep(3)
+            if "BUILD FAILED" in launcher_log().split("started on MCTest")[-1] and not latest.exists():
+                break
             if latest.exists() and "BARELYCRAFTING-SHOTS DONE" in latest.read_text(encoding="utf-8", errors="replace"):
                 done = True
                 break

@@ -16,7 +16,7 @@ import net.minecraft.resources.Identifier;
  * of everything else. A button whose action would do nothing right now is drawn dimmed and ignores clicks.
  */
 final class IconButton extends AbstractWidget {
-    static final int SIZE = 12;
+    static final int SIZE = 16;
     private final Identifier icon;
     private final Runnable action;
     private final BooleanSupplier usable;
@@ -48,7 +48,7 @@ final class IconButton extends AbstractWidget {
         g.fill(x + 1, y + 1, x + 2, y + SIZE - 1, 0xFFFFFFFF);
         g.fill(x + 1, y + SIZE - 2, x + SIZE - 1, y + SIZE - 1, hover ? 0xFF7A83B8 : 0xFF555555);
         g.fill(x + SIZE - 2, y + 2, x + SIZE - 1, y + SIZE - 1, hover ? 0xFF7A83B8 : 0xFF555555);
-        g.blit(RenderPipelines.GUI_TEXTURED, icon, x + 1, y + 1, 0.0F, 0.0F, 10, 10, 10, 10, 10, 10, on ? 0xFFFFFFFF : 0x66FFFFFF);
+        g.blit(RenderPipelines.GUI_TEXTURED, icon, x + 3, y + 3, 0.0F, 0.0F, 10, 10, 10, 10, 10, 10, on ? 0xFFFFFFFF : 0x66FFFFFF);
     }
 
     @Override

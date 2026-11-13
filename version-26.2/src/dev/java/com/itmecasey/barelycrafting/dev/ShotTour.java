@@ -235,6 +235,13 @@ public final class ShotTour {
         then(25, () -> hoverViewSlot(10));
         then(40, () -> LOGGER.info("BARELYCRAFTING-SHOTS big storage scroll row={} tab={} first={}", menu().viewScroll(), menu().selectedTab(), menu().slots.get(StationMenu.PLAYER_END).getItem()));
         shoot("gui_scrolled_big_storage", 10);
+        then(3, () -> {
+            var screen = Minecraft.getInstance().gui.screen();
+            if (screen instanceof com.itmecasey.barelycrafting.client.StationScreen scr) {
+                moveMouseGui(scr.guiLeft() - 192 + 6 + 24 + 11, scr.guiTop() + 5 + 12);
+            }
+        });
+        shoot("gui_tab_tooltip", 50);
         then(2, () -> close());
         then(20, () -> quit(Minecraft.getInstance()));
     }
@@ -320,7 +327,7 @@ public final class ShotTour {
         }
         int left = station.guiLeft();
         int top = station.guiTop();
-        moveMouseGui(left + 8 + 6, top + 18 + n * 13 + 6);
+        moveMouseGui(left + 7 + (n % 2) * 18 + 8, top + 19 + (n / 2) * 19 + 8);
     }
 
     private static void hoverGuiAway() {

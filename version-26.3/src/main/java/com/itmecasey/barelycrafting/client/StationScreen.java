@@ -51,7 +51,7 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
                 continue;
             }
             int id = s.id;
-            addRenderableWidget(new IconButton(leftPos + 8, topPos + 18 + row * 13, s.icon,
+            addRenderableWidget(new IconButton(leftPos + 7 + (row % 2) * 18, topPos + StationMenu.GRID_Y + (row / 2) * 19, s.icon,
                     Component.translatable("gui.barelycrafting.tip_" + s.key), s.usable, () -> press(id)));
             row++;
         }
@@ -114,7 +114,7 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
             inset(g, leftPos + s.x - 1, topPos + s.y - 1, 18, 18);
         }
         // The arrow from the grid to the result.
-        int ax = leftPos + 100;
+        int ax = leftPos + 105;
         int ay = topPos + 41;
         g.fill(ax, ay + 2, ax + 14, ay + 8, 0xFF8B8B8B);
         for (int i = 0; i < 6; i++) {
@@ -160,10 +160,6 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
             }
             g.item(new net.minecraft.world.item.ItemStack(menu.neighborBlock(i).asItem()), tx + 3, ty + 4);
         }
-        int side = menu.neighborSide(sel);
-        String where = side >= 0 && side < 6 ? Component.translatable("gui.barelycrafting.side_" + SIDES[side]).getString() : "";
-        g.text(font, menu.neighborBlock(sel).getName().getString(), x + 8, y + 33, TEXT, false);
-        g.text(font, where + "  " + menu.neighborUsed(sel) + "/" + menu.neighborTotal(sel), x + 8, y + 43, 0xFF6A6A6A, false);
         int max = maxRow();
         if (max > 0) {
             int bx = x + BAR_X;
@@ -175,6 +171,32 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
             g.fill(bx + 1, hy + 1, bx + 5, hy + handle - 1, 0xFFC6C6C6);
             g.fill(bx + 1, hy + 1, bx + 5, hy + 2, 0xFFFFFFFF);
         }
+    }
+
+    /** The tab under the mouse, or -1. */
+    private int tabAt(double mx, double my) {
+        for (int i = 0; i < menu.storages(); i++) {
+            int tx = panelX() + 6 + i * 24;
+            if (mx >= tx && mx < tx + 22 && my >= topPos + 5 && my < topPos + 29) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    @Override
+    protected void extractTooltip(GuiGraphicsExtractor g, int mx, int my) {
+        int tab = tabAt(mx, my);
+        if (tab >= 0) {
+            int side = menu.neighborSide(tab);
+            String where = side >= 0 && side < 6 ? Component.translatable("gui.barelycrafting.side_" + SIDES[side]).getString() : "";
+            java.util.List<Component> lines = new java.util.ArrayList<>();
+            lines.add(menu.neighborBlock(tab).getName());
+            lines.add(Component.literal(where + "  " + menu.neighborUsed(tab) + "/" + menu.neighborTotal(tab)));
+            g.setComponentTooltipForNextFrame(font, lines, mx, my);
+            return;
+        }
+        super.extractTooltip(g, mx, my);
     }
 
     private void scrollTo(int row) {
