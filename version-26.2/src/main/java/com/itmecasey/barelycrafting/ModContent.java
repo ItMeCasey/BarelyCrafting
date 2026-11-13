@@ -27,7 +27,7 @@ public final class ModContent {
 
     public static final Block STATION_BLOCK = new StationBlock(BlockBehaviour.Properties.of()
             .setId(ResourceKey.create(Registries.BLOCK, id("crafting_station")))
-            .mapColor(MapColor.WOOD).strength(2.5F, 3.0F).sound(SoundType.WOOD));
+            .mapColor(MapColor.STONE).strength(2.5F, 3.0F).sound(SoundType.WOOD).noOcclusion());
     public static final Item STATION_ITEM = new BlockItem(STATION_BLOCK, new Item.Properties()
             .setId(ResourceKey.create(Registries.ITEM, id("crafting_station"))).useBlockDescriptionPrefix());
     public static final BlockEntityType<StationBlockEntity> STATION = new BlockEntityType<>(StationBlockEntity::new, Set.of(STATION_BLOCK));

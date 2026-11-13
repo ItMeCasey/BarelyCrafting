@@ -165,9 +165,10 @@ public final class ShotTour {
             Minecraft.getInstance().options.setCameraType(CameraType.FIRST_PERSON);
         });
         then(4, () -> {
-            server("fill -4 " + (y - 1) + " -4 6 " + (y - 1) + " 4 minecraft:smooth_stone");
+            server("fill -4 " + (y - 1) + " -4 12 " + (y - 1) + " 4 minecraft:smooth_stone");
+            server("setblock 7 " + y + " 0 barelycrafting:crafting_station");
             installBigStorage();
-            server("setblock 0 " + (y + 1) + " 0 minecraft:gold_block");
+            server("setblock 0 " + y + " 1 minecraft:gold_block");
             server("setblock 0 " + y + " 0 barelycrafting:crafting_station", "setblock 1 " + y + " 0 minecraft:chest[facing=west]",
                     "setblock -1 " + y + " 0 minecraft:barrel[facing=up]");
         });
@@ -192,6 +193,20 @@ public final class ShotTour {
         // The block, seen from outside.
         then(2, () -> moveTo(new Vec3(0.5, y + 2.2, -3.4), new Vec3(0.5, y + 0.5, 0.5)));
         shoot("station_block", 30);
+        then(2, () -> moveTo(new Vec3(7.5, y + 3.6, -0.5), new Vec3(7.5, y + 0.4, 0.5)));
+        shoot("station_top", 25);
+        then(2, () -> moveTo(new Vec3(10.4, y + 1.7, -2.6), new Vec3(7.5, y + 0.6, 0.5)));
+        shoot("station_side_ne", 25);
+        then(2, () -> moveTo(new Vec3(4.6, y + 1.7, 3.4), new Vec3(7.5, y + 0.6, 0.5)));
+        shoot("station_side_nw", 25);
+        then(2, () -> server("item replace entity @p weapon.mainhand with barelycrafting:crafting_station"));
+        then(2, () -> moveTo(new Vec3(0.5, y + 1.8, -3.0), new Vec3(0.5, y + 1.0, 0.5)));
+        shoot("item_in_hand", 25);
+        then(2, () -> Minecraft.getInstance().gui.setScreen(new net.minecraft.client.gui.screens.inventory.InventoryScreen(player())));
+        then(5, () -> hoverGuiAway());
+        shoot("item_inventory", 30);
+        then(2, () -> close());
+        then(2, () -> moveTo(new Vec3(0.5, y + 2.2, -3.4), new Vec3(0.5, y + 0.5, 0.5)));
         // The screen.
         then(5, () -> open(station));
         shoot("gui_station", 40);

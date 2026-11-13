@@ -20,6 +20,8 @@ Spend: none
 
 - [x] Themes: minecraft (default) and modern, picked by ui.theme; seen on NeoForge 26.2 (minecraft) and Forge 26.3 (modern) (w:3)
 
+- [x] Pedestal block model made in Blockbench (stone foot, column and cap, wooden table slab with the 3x3 grid, rim and metal corner posts), source in branding/models/station.bbmodel, matching selection shape, item display transforms; frames from top, two sides, hand and inventory on NeoForge 26.2 and Forge 26.3 (w:4)
+
 ## Testing
 - [x] Unit tests of the pure logic (25 per module, all four modules) (w:3)
 - [x] Headless server self test, 42 checks, on all four layers (w:4)

@@ -202,12 +202,65 @@ def icon(accent_hex, rows, main=None):
     return img
 
 
+# Pedestal textures: stone bricks for the foot, column and cap, planks for the table slab and its corner posts, riveted metal for the studs.
+STONE = rgb("#8d8f98")
+STONE_LIGHT = rgb("#a9abb3")
+STONE_DARK = rgb("#6d6f78")
+MORTAR = rgb("#585a62")
+METAL = rgb("#9a9ca4")
+METAL_HI = rgb("#cfd1d8")
+METAL_LO = rgb("#555760")
+
+
+def station_stone():
+    img = Image.new("RGBA", (16, 16), STONE)
+    rnd = random.Random(5)
+    for row in range(4):
+        y0 = row * 4
+        for x in range(16):
+            img.putpixel((x, y0 + 3), MORTAR)
+        offset = 0 if row % 2 == 0 else 4
+        for k in range(2):
+            x = (offset + k * 8) % 16
+            for y in range(y0, y0 + 3):
+                img.putpixel((x, y), MORTAR)
+        for x in range(16):
+            if img.getpixel((x, y0))[:3] == STONE[:3]:
+                img.putpixel((x, y0), STONE_LIGHT)
+    for _ in range(14):
+        x, y = rnd.randrange(16), rnd.randrange(16)
+        if img.getpixel((x, y))[:3] == STONE[:3]:
+            img.putpixel((x, y), rnd.choice([STONE_DARK, STONE_LIGHT]))
+    return img
+
+
+def station_wood():
+    img = Image.new("RGBA", (16, 16))
+    planks(img, 0, 0, 16, 16, 71)
+    return img
+
+
+def station_metal():
+    img = Image.new("RGBA", (16, 16), METAL)
+    for i in range(16):
+        img.putpixel((i, 0), METAL_HI)
+        img.putpixel((0, i), METAL_HI)
+        img.putpixel((i, 15), METAL_LO)
+        img.putpixel((15, i), METAL_LO)
+    for p in ((3, 3), (12, 3), (3, 12), (12, 12)):
+        img.putpixel(p, METAL_LO)
+    return img
+
+
 def main():
     (TEX / "block").mkdir(parents=True, exist_ok=True)
     (TEX / "gui/icon").mkdir(parents=True, exist_ok=True)
     top().save(TEX / "block/crafting_station_top.png")
     side().save(TEX / "block/crafting_station_side.png")
     bottom().save(TEX / "block/crafting_station_bottom.png")
+    station_stone().save(TEX / "block/station_stone.png")
+    station_wood().save(TEX / "block/station_wood.png")
+    station_metal().save(TEX / "block/station_metal.png")
     for name, (accent, rows) in ICONS.items():
         icon(accent, rows).save(TEX / f"gui/icon/{name}.png")
         icon("#e6e3f7", rows, rgb("#e6e3f7")).save(TEX / f"gui/icon/{name}_light.png")
