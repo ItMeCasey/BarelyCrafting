@@ -187,7 +187,7 @@ def shade(color, amount):
     return (max(0, r + amount), max(0, g + amount), max(0, b + amount), a)
 
 
-def icon(accent_hex, rows):
+def icon(accent_hex, rows, main=None):
     """Flat two-tone glyph: the accent color with a darker pixel on every lower or right edge (no light edge, so it stays crisp)."""
     accent = rgb(accent_hex)
     img = Image.new("RGBA", (10, 10), (0, 0, 0, 0))
@@ -195,7 +195,7 @@ def icon(accent_hex, rows):
     for y, row in enumerate(rows):
         for x, ch in enumerate(row):
             if ch in "#a":
-                cells[(x, y)] = MAIN if ch == "#" else accent
+                cells[(x, y)] = (main or MAIN) if ch == "#" else accent
     for (x, y), c in cells.items():
         edge = (x, y + 1) not in cells or (x + 1, y) not in cells
         img.putpixel((x, y), shade(c, -45) if edge else c)
@@ -210,6 +210,7 @@ def main():
     bottom().save(TEX / "block/crafting_station_bottom.png")
     for name, (accent, rows) in ICONS.items():
         icon(accent, rows).save(TEX / f"gui/icon/{name}.png")
+        icon("#e6e3f7", rows, rgb("#e6e3f7")).save(TEX / f"gui/icon/{name}_light.png")
     # A preview sheet outside the repo tree is made by scripts/preview_assets.py when needed.
     print("textures written to", TEX)
 

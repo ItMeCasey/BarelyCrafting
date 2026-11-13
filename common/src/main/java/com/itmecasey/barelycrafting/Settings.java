@@ -26,6 +26,8 @@ public final class Settings {
     }
 
     static {
+        def("ui.theme", "minecraft", "Look of the screens: minecraft (gray, like the game) or modern (dark with gold, like Show Me What This Is). Client side.");
+
         def("buttons.clear", true, "Show the Clear button (grid items go to neighboring storage first, then your inventory).");
         def("buttons.rotate", true, "Show the Rotate button (turns the grid contents a quarter turn clockwise).");
         def("buttons.mirror", true, "Show the Mirror button (flips the grid contents left to right).");

@@ -65,6 +65,12 @@ public final class ShotTour {
     private ShotTour() {
     }
 
+    static {
+        if ("modern".equals(System.getenv("BARELYCRAFTING_THEME"))) {
+            com.itmecasey.barelycrafting.Settings.set("ui.theme", "modern");
+        }
+    }
+
     public static void tick() {
         if (!ENABLED || stage == Stage.DONE) {
             return;

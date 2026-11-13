@@ -17,13 +17,13 @@ import net.minecraft.resources.Identifier;
  */
 final class IconButton extends AbstractWidget {
     static final int SIZE = 16;
-    private final Identifier icon;
+    private final String name;
     private final Runnable action;
     private final BooleanSupplier usable;
 
     IconButton(int x, int y, String icon, Component tip, BooleanSupplier usable, Runnable action) {
         super(x, y, SIZE, SIZE, tip);
-        this.icon = ModContent.id("textures/gui/icon/" + icon + ".png");
+        this.name = icon;
         this.action = action;
         this.usable = usable;
         setTooltip(Tooltip.create(tip));
@@ -40,14 +40,18 @@ final class IconButton extends AbstractWidget {
     protected void extractWidgetRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float a) {
         int x = getX();
         int y = getY();
+        Theme t = Theme.get();
         boolean on = usable.getAsBoolean();
         boolean hover = isHovered() && on;
-        g.fill(x, y, x + SIZE, y + SIZE, 0xFF000000);
-        g.fill(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, hover ? 0xFFDDE4FF : 0xFFC6C6C6);
-        g.fill(x + 1, y + 1, x + SIZE - 1, y + 2, 0xFFFFFFFF);
-        g.fill(x + 1, y + 1, x + 2, y + SIZE - 1, 0xFFFFFFFF);
-        g.fill(x + 1, y + SIZE - 2, x + SIZE - 1, y + SIZE - 1, hover ? 0xFF7A83B8 : 0xFF555555);
-        g.fill(x + SIZE - 2, y + 2, x + SIZE - 1, y + SIZE - 1, hover ? 0xFF7A83B8 : 0xFF555555);
+        g.fill(x, y, x + SIZE, y + SIZE, hover ? t.btnHoverEdge() : t.btnEdge());
+        g.fill(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, hover ? t.btnHover() : t.btnFace());
+        if (!t.modern()) {
+            g.fill(x + 1, y + 1, x + SIZE - 1, y + 2, 0xFFFFFFFF);
+            g.fill(x + 1, y + 1, x + 2, y + SIZE - 1, 0xFFFFFFFF);
+            g.fill(x + 1, y + SIZE - 2, x + SIZE - 1, y + SIZE - 1, hover ? 0xFF7A83B8 : 0xFF555555);
+            g.fill(x + SIZE - 2, y + 2, x + SIZE - 1, y + SIZE - 1, hover ? 0xFF7A83B8 : 0xFF555555);
+        }
+        Identifier icon = ModContent.id("textures/gui/icon/" + name + t.iconSuffix() + ".png");
         g.blit(RenderPipelines.GUI_TEXTURED, icon, x + 3, y + 3, 0.0F, 0.0F, 10, 10, 10, 10, 10, 10, on ? 0xFFFFFFFF : 0x66FFFFFF);
     }
 

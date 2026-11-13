@@ -15,6 +15,10 @@ Part of the Barely series by ItMeCasey Studios. MIT license. Wiki: https://itmec
 - **Grid marks:** a small blue mark in grid slots whose item the neighbors hold more of.
 - **BEI:** the plus button of a crafting recipe fills the grid (clears it first; ingredients come from your inventory, then the neighbors).
 
+## Themes
+
+`ui.theme` in the config: `minecraft` (default, gray like the game) or `modern` (dark with gold, like SMWTI). Client side.
+
 ## Config
 
 `config/barelycrafting.properties`, written with defaults on first start. See the wiki page "Config file".

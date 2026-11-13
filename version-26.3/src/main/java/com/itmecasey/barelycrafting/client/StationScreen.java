@@ -19,7 +19,6 @@ import net.minecraft.world.inventory.Slot;
 public class StationScreen extends AbstractContainerScreen<StationMenu> {
     public static final int WIDTH = 176;
     public static final int HEIGHT = 198;
-    private static final int TEXT = 0xFF404040;
     private static final int BLUE = 0xFF2A5FD0;
 
     public StationScreen(StationMenu menu, Inventory inventory, Component title) {
@@ -77,26 +76,45 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
 
     // ---- Drawing ----
 
-    private static void panel(GuiGraphicsExtractor g, int x, int y, int w, int h) {
-        g.fill(x + 1, y, x + w - 1, y + h, 0xFF000000);
-        g.fill(x, y + 1, x + w, y + h - 1, 0xFF000000);
-        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFFC6C6C6);
-        g.fill(x + 3, y + 3, x + w - 3, y + 4, 0xFFFFFFFF);
-        g.fill(x + 3, y + 3, x + 4, y + h - 3, 0xFFFFFFFF);
-        g.fill(x + 2, y + 2, x + w - 2, y + 3, 0xFFFFFFFF);
-        g.fill(x + 2, y + 2, x + 3, y + h - 2, 0xFFFFFFFF);
-        g.fill(x + 3, y + h - 4, x + w - 3, y + h - 3, 0xFF555555);
-        g.fill(x + w - 4, y + 3, x + w - 3, y + h - 3, 0xFF555555);
-        g.fill(x + 2, y + h - 3, x + w - 2, y + h - 2, 0xFF555555);
-        g.fill(x + w - 3, y + 2, x + w - 2, y + h - 2, 0xFF555555);
-        g.fill(x + 4, y + 4, x + w - 4, y + h - 4, 0xFFC6C6C6);
+    private static Theme th() {
+        return Theme.get();
     }
 
-    /** An inset square: dark on top and left, white on bottom and right, gray inside. */
+    private static void panel(GuiGraphicsExtractor g, int x, int y, int w, int h) {
+        Theme t = th();
+        if (t.modern()) {
+            g.fill(x, y, x + w, y + h, t.panelEdge());
+            g.fill(x + 1, y + 1, x + w - 1, y + h - 1, t.panelFace());
+            g.fill(x + 1, y + 1, x + w - 1, y + 2, t.panelHi());
+            g.fill(x, y, x + 3, y + 1, 0xFFF2B33D);
+            g.fill(x, y, x + 1, y + 3, 0xFFF2B33D);
+            return;
+        }
+        g.fill(x + 1, y, x + w - 1, y + h, t.panelEdge());
+        g.fill(x, y + 1, x + w, y + h - 1, t.panelEdge());
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, t.panelFace());
+        g.fill(x + 3, y + 3, x + w - 3, y + 4, t.panelHi());
+        g.fill(x + 3, y + 3, x + 4, y + h - 3, t.panelHi());
+        g.fill(x + 2, y + 2, x + w - 2, y + 3, t.panelHi());
+        g.fill(x + 2, y + 2, x + 3, y + h - 2, t.panelHi());
+        g.fill(x + 3, y + h - 4, x + w - 3, y + h - 3, t.panelLo());
+        g.fill(x + w - 4, y + 3, x + w - 3, y + h - 3, t.panelLo());
+        g.fill(x + 2, y + h - 3, x + w - 2, y + h - 2, t.panelLo());
+        g.fill(x + w - 3, y + 2, x + w - 2, y + h - 2, t.panelLo());
+        g.fill(x + 4, y + 4, x + w - 4, y + h - 4, t.panelFace());
+    }
+
+    /** A slot frame: dark on top and left and light on bottom and right in the minecraft look, a thin edge in the modern look. */
     private static void inset(GuiGraphicsExtractor g, int x, int y, int w, int h) {
-        g.fill(x, y, x + w, y + h, 0xFFFFFFFF);
-        g.fill(x, y, x + w - 1, y + h - 1, 0xFF373737);
-        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFF8B8B8B);
+        Theme t = th();
+        if (t.modern()) {
+            g.fill(x, y, x + w, y + h, t.slotDark());
+            g.fill(x + 1, y + 1, x + w - 1, y + h - 1, t.slotFace());
+            return;
+        }
+        g.fill(x, y, x + w, y + h, t.slotLight());
+        g.fill(x, y, x + w - 1, y + h - 1, t.slotDark());
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, t.slotFace());
     }
 
     @Override
@@ -116,9 +134,9 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
         // The arrow from the grid to the result.
         int ax = leftPos + 105;
         int ay = topPos + 41;
-        g.fill(ax, ay + 2, ax + 14, ay + 8, 0xFF8B8B8B);
+        g.fill(ax, ay + 2, ax + 14, ay + 8, th().arrow());
         for (int i = 0; i < 6; i++) {
-            g.fill(ax + 14 + i, ay + i, ax + 15 + i, ay + 10 - i, 0xFF8B8B8B);
+            g.fill(ax + 14 + i, ay + i, ax + 15 + i, ay + 10 - i, th().arrow());
         }
     }
 
@@ -145,16 +163,17 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
         int y = topPos;
         panel(g, x, y, VIEW_W, n == 0 ? 36 : VIEW_H);
         if (n == 0) {
-            g.text(font, Component.translatable("gui.barelycrafting.connected"), x + 8, y + 7, TEXT, false);
+            g.text(font, Component.translatable("gui.barelycrafting.connected"), x + 8, y + 7, th().title(), false);
             return;
         }
         int sel = menu.selectedTab();
         for (int i = 0; i < n; i++) {
             int tx = x + 6 + i * 24;
             int ty = y + 5;
-            g.fill(tx, ty, tx + 22, ty + 24, 0xFF000000);
-            g.fill(tx + 1, ty + 1, tx + 21, ty + 23, i == sel ? 0xFFC6C6C6 : 0xFF8B8B8B);
-            if (i == sel) {
+            Theme t = th();
+            g.fill(tx, ty, tx + 22, ty + 24, i == sel ? t.tabSelBorder() : t.tabBorder());
+            g.fill(tx + 1, ty + 1, tx + 21, ty + 23, i == sel ? t.tabSel() : t.tabUnsel());
+            if (i == sel && !t.modern()) {
                 g.fill(tx + 1, ty + 1, tx + 21, ty + 2, 0xFFFFFFFF);
                 g.fill(tx + 1, ty + 1, tx + 2, ty + 23, 0xFFFFFFFF);
             }
@@ -164,12 +183,12 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
         if (max > 0) {
             int bx = x + BAR_X;
             int by = y + StationMenu.VIEW_Y;
-            g.fill(bx, by, bx + 6, by + BAR_H, 0xFF373737);
+            g.fill(bx, by, bx + 6, by + BAR_H, th().barTrack());
             int handle = Math.max(10, BAR_H * StationMenu.VIEW_ROWS / (max + StationMenu.VIEW_ROWS));
             int hy = by + (BAR_H - handle) * menu.viewScroll() / max;
-            g.fill(bx, hy, bx + 6, hy + handle, 0xFF000000);
-            g.fill(bx + 1, hy + 1, bx + 5, hy + handle - 1, 0xFFC6C6C6);
-            g.fill(bx + 1, hy + 1, bx + 5, hy + 2, 0xFFFFFFFF);
+            g.fill(bx, hy, bx + 6, hy + handle, th().barBorder());
+            g.fill(bx + 1, hy + 1, bx + 5, hy + handle - 1, th().barFace());
+            g.fill(bx + 1, hy + 1, bx + 5, hy + 2, th().barHi());
         }
     }
 
@@ -267,8 +286,8 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
 
     @Override
     protected void extractLabels(GuiGraphicsExtractor g, int mx, int my) {
-        g.text(font, title, titleLabelX, titleLabelY, TEXT, false);
-        g.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TEXT, false);
+        g.text(font, title, titleLabelX, titleLabelY, th().title(), false);
+        g.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, th().text(), false);
     }
 
     @Override

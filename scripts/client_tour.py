@@ -8,6 +8,7 @@ a station beside a chest, takes the frames, hovers buttons through the game's ow
 Frames land in <layer>/run/screenshots and are copied to docs/frames/ with the layer in the name.
 Check `who-owns-minecraft.ps1` first: one client at a time.
 """
+import os
 import re
 import shutil
 import subprocess
@@ -55,7 +56,8 @@ def tour(layer):
     latest = run / "logs" / "latest.log"
     if latest.exists():
         latest.unlink()
-    command = r'set BARELYCRAFTING_SHOTS=1&& .\gradlew.bat runClient --no-daemon -q -PdevTools -PwindowSize=1904x1041'
+    theme = os.environ.get('BARELYCRAFTING_THEME', '')
+    command = r'set BARELYCRAFTING_SHOTS=1&& set BARELYCRAFTING_THEME=' + theme + r'&& .\gradlew.bat runClient --no-daemon -q -PdevTools -PwindowSize=1904x1041'
     start = time.time()
     subprocess.run(["powershell", "-NoProfile", "-File", LAUNCH, "-Run", "-WorkDir", str(folder), "-Command", command], check=True)
     done = False
@@ -75,7 +77,7 @@ def tour(layer):
     frames.mkdir(parents=True, exist_ok=True)
     names = sorted(p.name for p in shots.glob("*.png")) if shots.exists() else []
     for n in names:
-        shutil.copy2(shots / n, frames / n.replace("barelycrafting_", f"barelycrafting_{layer}_", 1))
+        shutil.copy2(shots / n, frames / n.replace("barelycrafting_", f"barelycrafting_{layer}{'-' + theme if theme else ''}_", 1))
     errors = [l for l in text.splitlines() if re.search(r"BARELYCRAFTING-SHOTS failed|ModLoadingException|Crash report saved|barelycrafting.*(Exception|Error)", l, re.I)]
     status = "TOUR PASS" if done and not errors else "TOUR FAIL"
     detail = "" if status == "TOUR PASS" else f": done={done} first_error={errors[:1]}"

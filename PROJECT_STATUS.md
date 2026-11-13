@@ -18,6 +18,8 @@ Spend: none
 - [x] Button column: clear, rotate, mirror, balance, refill, craft all, tooltips on top, config switches (w:4)
 - [x] BEI plus button fills the grid (compiled; the BEI transfer itself not run in a client) (w:2)
 
+- [x] Themes: minecraft (default) and modern, picked by ui.theme; seen on NeoForge 26.2 (minecraft) and Forge 26.3 (modern) (w:3)
+
 ## Testing
 - [x] Unit tests of the pure logic (25 per module, all four modules) (w:3)
 - [x] Headless server self test, 42 checks, on all four layers (w:4)
