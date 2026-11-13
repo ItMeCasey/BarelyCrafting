@@ -19,6 +19,4 @@ Barely Crafting adds the Crafting Station for Forge and NeoForge on Minecraft 26
 
 **Which versions?** Minecraft 26.2 and 26.3, Forge and NeoForge, one jar each. No Fabric, no older versions.
 
-**Tested:** unit tests, a headless server self test on all four builds, and a real client tour on NeoForge 26.2 and Forge 26.3. JEI, REI and EMI plus buttons and Jade/SMWTI lines are not done yet.
-
 Source: https://github.com/ItMeCasey/BarelyCrafting (MIT)
