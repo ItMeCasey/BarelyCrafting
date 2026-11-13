@@ -1,11 +1,13 @@
 package com.itmecasey.barelycrafting.client;
 
 import com.itmecasey.barelycrafting.Settings;
+import com.itmecasey.barelycrafting.ViewMath;
 import com.itmecasey.barelycrafting.menu.StationMenu;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -121,29 +123,124 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
     }
 
     private static final String[] SIDES = {"down", "up", "north", "south", "west", "east"};
-    private static final int VIEW_W = 178;
+    private static final int VIEW_W = 190;
+    private static final int VIEW_H = StationMenu.VIEW_Y + StationMenu.VIEW_ROWS * 18 + 8;
+    private static final int BAR_X = 174;
+    private static final int BAR_H = StationMenu.VIEW_ROWS * 18;
+    private boolean draggingBar;
+    private int sentRow = -1;
 
-    /** The panel left of the screen: the real contents of the connected storages (first 27 slots of up to four), read-only. */
+    private int panelX() {
+        return leftPos - VIEW_W - 2;
+    }
+
+    private int maxRow() {
+        return ViewMath.maxRow(menu.neighborTotal(menu.selectedTab()), StationMenu.VIEW_COLS, StationMenu.VIEW_ROWS);
+    }
+
+    /** The panel left of the screen: a tab per connected storage (its block), and the selected storage's slots, scrollable. */
     private void drawConnected(GuiGraphicsExtractor g) {
         int n = menu.storages();
-        int shown = Math.min(n, StationMenu.VIEW_SECTIONS);
-        int x = leftPos - VIEW_W - 2;
+        int x = panelX();
         int y = topPos;
-        int h = n == 0 ? 36 : 20 + shown * StationMenu.SECTION_H + (n > shown ? 12 : 0);
-        panel(g, x, y, VIEW_W, h);
-        g.text(font, Component.translatable("gui.barelycrafting.connected"), x + 8, y + 7, TEXT, false);
-        for (int i = 0; i < shown; i++) {
-            int top = y + 20 + i * StationMenu.SECTION_H;
-            int side = menu.neighborSide(i);
-            net.minecraft.world.level.block.Block block = menu.neighborBlock(i);
-            g.item(new net.minecraft.world.item.ItemStack(block.asItem()), x + 7, top - 1);
-            String where = side >= 0 && side < 6 ? Component.translatable("gui.barelycrafting.side_" + SIDES[side]).getString() : "";
-            g.text(font, block.getName().getString(), x + 27, top, TEXT, false);
-            g.text(font, where + "  " + menu.neighborUsed(i) + "/" + menu.neighborTotal(i), x + 27, top + 9, 0xFF6A6A6A, false);
+        panel(g, x, y, VIEW_W, n == 0 ? 36 : VIEW_H);
+        if (n == 0) {
+            g.text(font, Component.translatable("gui.barelycrafting.connected"), x + 8, y + 7, TEXT, false);
+            return;
         }
-        if (n > shown) {
-            g.text(font, Component.translatable("gui.barelycrafting.more_storages", n - shown), x + 8, y + 22 + shown * StationMenu.SECTION_H - 4, 0xFF6A6A6A, false);
+        int sel = menu.selectedTab();
+        for (int i = 0; i < n; i++) {
+            int tx = x + 6 + i * 24;
+            int ty = y + 5;
+            g.fill(tx, ty, tx + 22, ty + 24, 0xFF000000);
+            g.fill(tx + 1, ty + 1, tx + 21, ty + 23, i == sel ? 0xFFC6C6C6 : 0xFF8B8B8B);
+            if (i == sel) {
+                g.fill(tx + 1, ty + 1, tx + 21, ty + 2, 0xFFFFFFFF);
+                g.fill(tx + 1, ty + 1, tx + 2, ty + 23, 0xFFFFFFFF);
+            }
+            g.item(new net.minecraft.world.item.ItemStack(menu.neighborBlock(i).asItem()), tx + 3, ty + 4);
         }
+        int side = menu.neighborSide(sel);
+        String where = side >= 0 && side < 6 ? Component.translatable("gui.barelycrafting.side_" + SIDES[side]).getString() : "";
+        g.text(font, menu.neighborBlock(sel).getName().getString(), x + 8, y + 33, TEXT, false);
+        g.text(font, where + "  " + menu.neighborUsed(sel) + "/" + menu.neighborTotal(sel), x + 8, y + 43, 0xFF6A6A6A, false);
+        int max = maxRow();
+        if (max > 0) {
+            int bx = x + BAR_X;
+            int by = y + StationMenu.VIEW_Y;
+            g.fill(bx, by, bx + 6, by + BAR_H, 0xFF373737);
+            int handle = Math.max(10, BAR_H * StationMenu.VIEW_ROWS / (max + StationMenu.VIEW_ROWS));
+            int hy = by + (BAR_H - handle) * menu.viewScroll() / max;
+            g.fill(bx, hy, bx + 6, hy + handle, 0xFF000000);
+            g.fill(bx + 1, hy + 1, bx + 5, hy + handle - 1, 0xFFC6C6C6);
+            g.fill(bx + 1, hy + 1, bx + 5, hy + 2, 0xFFFFFFFF);
+        }
+    }
+
+    private void scrollTo(int row) {
+        row = Math.max(0, Math.min(row, maxRow()));
+        if (sentRow == menu.viewScroll()) {
+            sentRow = -1;
+        }
+        if (row != menu.viewScroll() && row != sentRow) {
+            sentRow = row;
+            press(StationMenu.BTN_SCROLL + menu.selectedTab() * 10000 + row);
+        }
+    }
+
+    private void scrollFromMouse(double mouseY) {
+        int max = maxRow();
+        int handle = Math.max(10, BAR_H * StationMenu.VIEW_ROWS / (max + StationMenu.VIEW_ROWS));
+        double frac = (mouseY - (topPos + StationMenu.VIEW_Y) - handle / 2.0) / Math.max(1, BAR_H - handle);
+        scrollTo((int) Math.round(frac * max));
+    }
+
+    @Override
+    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
+        if (menu.storages() > 0 && x >= panelX() && x < panelX() + VIEW_W && y >= topPos && y < topPos + VIEW_H) {
+            int base = sentRow >= 0 && sentRow != menu.viewScroll() ? sentRow : menu.viewScroll();
+            if (scrollY != 0) {
+                scrollTo(base + (scrollY > 0 ? -1 : 1));
+            }
+            return true;
+        }
+        return super.mouseScrolled(x, y, scrollX, scrollY);
+    }
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        int n = menu.storages();
+        if (n > 0) {
+            for (int i = 0; i < n; i++) {
+                int tx = panelX() + 6 + i * 24;
+                if (event.x() >= tx && event.x() < tx + 22 && event.y() >= topPos + 5 && event.y() < topPos + 29) {
+                    press(StationMenu.BTN_TAB + i);
+                    return true;
+                }
+            }
+            int bx = panelX() + BAR_X;
+            if (maxRow() > 0 && event.x() >= bx && event.x() < bx + 6 && event.y() >= topPos + StationMenu.VIEW_Y && event.y() < topPos + StationMenu.VIEW_Y + BAR_H) {
+                draggingBar = true;
+                scrollFromMouse(event.y());
+                return true;
+            }
+        }
+        return super.mouseClicked(event, doubleClick);
+    }
+
+    @Override
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        if (draggingBar) {
+            scrollFromMouse(event.y());
+            return true;
+        }
+        return super.mouseDragged(event, dx, dy);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        draggingBar = false;
+        return super.mouseReleased(event);
     }
 
     @Override

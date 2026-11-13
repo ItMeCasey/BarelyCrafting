@@ -14,13 +14,13 @@ Spend: none
 - [x] Block, block entity and menu with a persistent 3x3 grid (saved per slot, drops on break) (w:4)
 - [x] Result slot: click, shift-click craft-max, leftovers, full inventory, mismatched cursor (w:4)
 - [x] Crafting from neighboring storages (six sides, set order, grid first then neighbors, refill) (w:5)
-- [x] Connected panel with the real contents of the connected storages (w:3)
+- [x] Connected panel: block-icon tab per storage, real slots, per-storage scrolling (scroll math unit-tested; the scrolling itself not seen on a storage over 54 slots) (w:4)
 - [x] Button column: clear, rotate, mirror, balance, refill, craft all, tooltips on top, config switches (w:4)
 - [x] BEI plus button fills the grid (compiled; the BEI transfer itself not run in a client) (w:2)
 
 ## Testing
-- [x] Unit tests of the pure logic (22 per module, all four modules) (w:3)
-- [x] Headless server self test, 40 checks, on all four layers (w:4)
+- [x] Unit tests of the pure logic (25 per module, all four modules) (w:3)
+- [x] Headless server self test, 42 checks, on all four layers (w:4)
 - [x] Real-client frames on NeoForge 26.2 and Forge 26.3 (isolated launcher): block, screen, tooltip over buttons, rotate, craft from chest (w:4)
 - [ ] BEI plus button run in a real client (w:2)
 - [ ] Real client on Forge 26.2 and NeoForge 26.3 (w:2)

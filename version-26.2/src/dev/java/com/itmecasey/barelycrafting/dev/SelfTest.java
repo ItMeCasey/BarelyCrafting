@@ -360,18 +360,26 @@ public final class SelfTest {
                         && menu.neighborSide(2) == -1,
                 "n=" + menu.storages() + " first=" + menu.neighborSide(0) + "/" + menu.neighborBlock(0) + " second=" + menu.neighborSide(1) + "/" + menu.neighborBlock(1)
                         + " used=" + menu.neighborUsed(1) + "/" + menu.neighborTotal(1));
-        // The real contents of the connected storages are in the menu's view slots: barrel first (below), then the chest.
+        // The panel shows the selected storage: the barrel (tab 0) first, then the chest after its tab is picked.
         int base = StationMenu.FIRST_PLAYER + 36;
-        boolean planks = menu.slots.get(base + StationMenu.VIEW_PER + 0).getItem().is(Items.OAK_PLANKS)
-                && menu.slots.get(base + StationMenu.VIEW_PER + 0).getItem().getCount() == 20;
-        boolean sticks = menu.slots.get(base + StationMenu.VIEW_PER + 5).getItem().is(Items.STICK);
-        boolean readOnly = !menu.slots.get(base + StationMenu.VIEW_PER).mayPickup(player) && !menu.slots.get(base).mayPlace(new ItemStack(Items.DIRT));
-        verdict("connected_slots_show_the_real_contents_and_cannot_be_taken_from", planks && sticks && readOnly,
-                "planks=" + planks + " sticks=" + sticks + " readOnly=" + readOnly);
-        menu.clicked(base + StationMenu.VIEW_PER, 0, ContainerInput.QUICK_MOVE, player);
-        menu.clicked(base + StationMenu.VIEW_PER, 0, ContainerInput.PICKUP, player);
+        boolean barrelEmpty = menu.slots.get(base).getItem().isEmpty() && menu.selectedTab() == 0;
+        menu.clickMenuButton(player, StationMenu.BTN_TAB + 1);
+        menu.broadcastChanges();
+        boolean planks = menu.selectedTab() == 1 && menu.slots.get(base).getItem().is(Items.OAK_PLANKS) && menu.slots.get(base).getItem().getCount() == 20;
+        boolean sticks = menu.slots.get(base + 5).getItem().is(Items.STICK);
+        boolean readOnly = !menu.slots.get(base).mayPickup(player) && !menu.slots.get(base).mayPlace(new ItemStack(Items.DIRT));
+        verdict("tabs_switch_the_shown_storage_and_slots_are_read_only", barrelEmpty && planks && sticks && readOnly,
+                "barrelEmpty=" + barrelEmpty + " planks=" + planks + " sticks=" + sticks + " readOnly=" + readOnly);
+        menu.clicked(base, 0, ContainerInput.QUICK_MOVE, player);
+        menu.clicked(base, 0, ContainerInput.PICKUP, player);
         verdict("clicking_a_connected_slot_changes_nothing", count(chest, Items.OAK_PLANKS) == 20 && menu.getCarried().isEmpty() && count(player.getInventory(), Items.OAK_PLANKS) == 0,
                 "chest=" + count(chest, Items.OAK_PLANKS));
+        menu.clickMenuButton(player, StationMenu.BTN_SCROLL + 1 * 10000 + 5);
+        menu.broadcastChanges();
+        verdict("scroll_is_clamped_for_a_storage_that_fits", menu.viewScroll() == 0 && menu.slots.get(base).getItem().is(Items.OAK_PLANKS), "scroll=" + menu.viewScroll());
+        menu.clickMenuButton(player, StationMenu.BTN_TAB + 5);
+        menu.broadcastChanges();
+        verdict("a_tab_past_the_last_storage_falls_back_to_the_last_one", menu.selectedTab() == 1, "tab=" + menu.selectedTab());
         level.setBlock(p.below(), Blocks.AIR.defaultBlockState(), 3);
     }
 

@@ -192,6 +192,8 @@ public final class ShotTour {
         shoot("gui_tooltip_mirror", 50);
         // Rotate with the real button, then craft everything through the result slot.
         then(3, () -> hoverGuiAway());
+        then(3, () -> press(StationMenu.BTN_TAB + 1));
+        shoot("gui_chest_tab", 25);
         then(3, () -> press(StationMenu.BTN_ROTATE));
         shoot("gui_after_rotate", 25);
         then(3, () -> press(StationMenu.BTN_ROTATE));

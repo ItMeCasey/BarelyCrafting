@@ -12,7 +12,7 @@
 4. **Shift-click / Craft All** stop when the grid stops matching, when the result would become a different item (like three leftover cobblestone turning into slabs), when the inventory is full, or at `craft.max_per_click`.
 5. **Clear** sends the items to neighbors first, then the player, then the ground. **Refill** tops filled slots up to a full stack from the player first, then neighbors.
 6. **Buttons** are configurable per button; the server refuses a disabled button, the client hides it.
-7. **Connected panel** with the real contents of the connected storages (read-only view slots, first 27 slots of up to four storages), because a summary was not enough.
+7. **Connected panel** with a tab per connected storage (block icon) and the real slots of the selected one as a 9 by 6 window, scrolled per storage with the wheel or a bar, read-only (view slots synced like any menu slots).
 8. **Persistence** writes all nine slots (empty ones too), because the stock `SimpleContainer.storeAsItemList` skips empty slots and would shuffle the pattern.
 9. **Result clicks** are handled in the menu's `clicked` (server only), not in a vanilla result slot, so craft-max and refills stay in one code path.
 

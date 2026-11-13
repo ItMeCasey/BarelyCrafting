@@ -47,12 +47,15 @@ public class StationMenu extends AbstractContainerMenu {
     public static final int RESULT_Y = 37;
     public static final int PLAYER_Y = 116;
     public static final int PLAYER_END = FIRST_PLAYER + 36;
-    /** The contents of up to four connected storages are shown, each as its first 27 slots, in a panel left of the screen. */
-    public static final int VIEW_SECTIONS = 4;
-    public static final int VIEW_PER = 27;
-    public static final int VIEW_X = -172;
-    public static final int VIEW_Y = 42;
-    public static final int SECTION_H = 79;
+    /** The Connected panel shows the selected storage as a window of 9 by 6 slots; tabs pick the storage, the wheel scrolls it. */
+    public static final int VIEW_COLS = 9;
+    public static final int VIEW_ROWS = 6;
+    public static final int VIEW_PER = VIEW_COLS * VIEW_ROWS;
+    public static final int VIEW_X = -184;
+    public static final int VIEW_Y = 54;
+    public static final int BTN_TAB = 200;
+    /** {@code BTN_SCROLL + tab * 10000 + row} sets the first visible row of one storage. */
+    public static final int BTN_SCROLL = 1_000_000;
 
     // Menu button ids (what the screen sends through clickMenuButton).
     public static final int BTN_CLEAR = 1;
@@ -74,17 +77,21 @@ public class StationMenu extends AbstractContainerMenu {
     /** Per connected storage (up to 6): side + 1 (0 = none), block id, slots in use, slots in total. */
     private static final int D_NEIGH = D_STOCK + GRID;
     private static final int NEIGH_FIELDS = 4;
+    private static final int D_SEL = D_NEIGH + 6 * NEIGH_FIELDS;
+    private static final int D_SCROLL = D_SEL + 1;
 
     private final GridContainer grid;
     private final SimpleContainer result = new SimpleContainer(1);
     /** A read-only copy of what the connected storages hold; the server refreshes it, Minecraft syncs it like any slots. */
-    private final SimpleContainer view = new SimpleContainer(VIEW_SECTIONS * VIEW_PER);
-    private final ContainerData data = new SimpleContainerData(D_STOCK + GRID + 6 * NEIGH_FIELDS);
+    private final SimpleContainer view = new SimpleContainer(VIEW_PER);
+    private final ContainerData data = new SimpleContainerData(D_STOCK + GRID + 6 * NEIGH_FIELDS + 2);
     @Nullable
     private final Level level;
     @Nullable
     private final BlockPos pos;
     private final Runnable listener = this::updateResult;
+    private int selected;
+    private final int[] scroll = new int[6];
     private int tick;
     private boolean dirty = true;
 
@@ -122,9 +129,9 @@ public class StationMenu extends AbstractContainerMenu {
         for (int col = 0; col < 9; col++) {
             addSlot(new Slot(inventory, col, 8 + col * 18, PLAYER_Y + 58));
         }
-        for (int i = 0; i < VIEW_SECTIONS * VIEW_PER; i++) {
-            final int section = i / VIEW_PER;
-            addSlot(new Slot(view, i, VIEW_X + (i % 9) * 18, VIEW_Y + section * SECTION_H + ((i % VIEW_PER) / 9) * 18) {
+        for (int i = 0; i < VIEW_PER; i++) {
+            final int k = i;
+            addSlot(new Slot(view, i, VIEW_X + (i % VIEW_COLS) * 18, VIEW_Y + (i / VIEW_COLS) * 18) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
                     return false;
@@ -137,7 +144,7 @@ public class StationMenu extends AbstractContainerMenu {
 
                 @Override
                 public boolean isActive() {
-                    return section < data.get(D_STORAGES);
+                    return data.get(D_STORAGES) > 0 && data.get(D_SCROLL) * VIEW_COLS + k < neighborTotal(data.get(D_SEL));
                 }
             });
         }
@@ -191,6 +198,16 @@ public class StationMenu extends AbstractContainerMenu {
     /** The block of the n-th connected storage (shown as its item). */
     public net.minecraft.world.level.block.Block neighborBlock(int n) {
         return BuiltInRegistries.BLOCK.byId(data.get(D_NEIGH + n * NEIGH_FIELDS + 1));
+    }
+
+    /** The tab (connected storage) shown in the panel. */
+    public int selectedTab() {
+        return data.get(D_SEL);
+    }
+
+    /** The first visible row of the shown storage. */
+    public int viewScroll() {
+        return data.get(D_SCROLL);
     }
 
     public int neighborUsed(int n) {
@@ -250,27 +267,35 @@ public class StationMenu extends AbstractContainerMenu {
                 data.set(base + 1, BuiltInRegistries.BLOCK.getId(server.getBlockState(pos.relative(f.side())).getBlock()));
                 data.set(base + 2, Math.min(32767, used));
                 data.set(base + 3, Math.min(32767, inv.slots()));
-                if (n < VIEW_SECTIONS) {
-                    for (int k = 0; k < VIEW_PER; k++) {
-                        ItemStack shown = k < inv.slots() ? inv.get(k) : ItemStack.EMPTY;
-                        shown = shown.isEmpty() ? ItemStack.EMPTY : shown.copyWithCount(Math.min(shown.getCount(), 99));
-                        int at = n * VIEW_PER + k;
-                        if (!ItemStack.matches(view.getItem(at), shown)) {
-                            view.setItem(at, shown);
-                        }
-                    }
-                }
             } else {
                 data.set(base, 0);
                 data.set(base + 1, 0);
                 data.set(base + 2, 0);
                 data.set(base + 3, 0);
-                if (n < VIEW_SECTIONS) {
-                    for (int k = 0; k < VIEW_PER; k++) {
-                        if (!view.getItem(n * VIEW_PER + k).isEmpty()) {
-                            view.setItem(n * VIEW_PER + k, ItemStack.EMPTY);
-                        }
-                    }
+            }
+        }
+        if (found.isEmpty()) {
+            selected = 0;
+            data.set(D_SEL, 0);
+            data.set(D_SCROLL, 0);
+            for (int k = 0; k < VIEW_PER; k++) {
+                if (!view.getItem(k).isEmpty()) {
+                    view.setItem(k, ItemStack.EMPTY);
+                }
+            }
+        } else {
+            selected = Math.max(0, Math.min(selected, found.size() - 1));
+            ExternalInventory shownInv = found.get(selected).inventory();
+            int total = shownInv.slots();
+            scroll[selected] = com.itmecasey.barelycrafting.ViewMath.clampRow(scroll[selected], total, VIEW_COLS, VIEW_ROWS);
+            data.set(D_SEL, selected);
+            data.set(D_SCROLL, scroll[selected]);
+            for (int k = 0; k < VIEW_PER; k++) {
+                int at = scroll[selected] * VIEW_COLS + k;
+                ItemStack shown = at < total ? shownInv.get(at) : ItemStack.EMPTY;
+                shown = shown.isEmpty() ? ItemStack.EMPTY : shown.copyWithCount(Math.min(shown.getCount(), 99));
+                if (!ItemStack.matches(view.getItem(k), shown)) {
+                    view.setItem(k, shown);
                 }
             }
         }
@@ -347,6 +372,19 @@ public class StationMenu extends AbstractContainerMenu {
         }
         ServerLevel server = (ServerLevel) level;
         List<ExternalInventory> neighbors = Neighbors.scan(server, pos);
+        if (id >= BTN_TAB && id < BTN_TAB + 6) {
+            selected = id - BTN_TAB;
+            dirty = true;
+            return true;
+        }
+        if (id >= BTN_SCROLL && id < BTN_FILL) {
+            int tab = (id - BTN_SCROLL) / 10000;
+            if (tab < 6) {
+                scroll[tab] = Math.max(0, (id - BTN_SCROLL) % 10000);
+                dirty = true;
+            }
+            return true;
+        }
         if (id >= BTN_FILL) {
             int code = id - BTN_FILL;
             fillSlot(code / FILL_STRIDE, code % FILL_STRIDE, sp, neighbors);
