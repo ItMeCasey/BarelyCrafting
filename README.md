@@ -10,9 +10,9 @@ Part of the Barely series by ItMeCasey Studios. MIT license. Wiki: https://itmec
 - **Neighbor storages.** The six sides are scanned in the order below, north, south, west, east (setting `neighbors.faces`); any block with an item handler counts. Nearest first, slot 0 upward.
 - **Rules.** One craft takes one item from every filled grid slot (the grid first). A slot that runs empty is refilled with one matching item from the neighbors; when none has it the slot stays empty and crafting stops. Leftovers (empty buckets, damaged tools) go back into their own slot when it is empty, else to a neighbor, your inventory or the ground. Everything runs on the server and nothing is deleted or created.
 - **Shift-click the result** crafts as many as possible into your inventory (stops when the grid stops matching, when the result would become a different item, or when the inventory is full). **Craft All** does the same from a button.
-- **Buttons** (plain monochrome icons left of the grid, tooltips drawn on top of everything): Clear (to neighbors, then you), Rotate, Mirror, Balance, Refill (from you, then neighbors), Craft All. Each can be switched off in the config; the server enforces it.
+- **Buttons** (plain monochrome icons left of the grid, name tooltips drawn on top of everything): Clear (to neighbors, then you), Rotate, Mirror, Balance, Refill (from you, then neighbors), Craft All. Each can be switched off in the config; the server enforces it.
 - **Connected panel:** left of the screen, the real contents of the connected storages (first 27 slots of up to four), read-only.
-- **On screen:** a blue mark in grid slots whose item the neighbors hold more of, the number of neighbor storages, "Crafts left", and "Refills from neighbors".
+- **Grid marks:** a small blue mark in grid slots whose item the neighbors hold more of.
 - **BEI:** the plus button of a crafting recipe fills the grid (clears it first; ingredients come from your inventory, then the neighbors).
 
 ## Config

@@ -1,12 +1,12 @@
 {
   "itemGroup.barelycrafting": "Barely Crafting",
   "block.barelycrafting.crafting_station": "Crafting Station",
-  "gui.barelycrafting.tip_clear": "Clear grid: items go to neighboring storage, then your inventory",
-  "gui.barelycrafting.tip_rotate": "Rotate grid a quarter turn",
-  "gui.barelycrafting.tip_mirror": "Mirror grid left to right",
-  "gui.barelycrafting.tip_balance": "Balance: spread equal items evenly",
-  "gui.barelycrafting.tip_refill": "Refill: top up filled slots from your inventory, then neighbors",
-  "gui.barelycrafting.tip_craft_all": "Craft as many as possible into your inventory",
+  "gui.barelycrafting.tip_clear": "Clear",
+  "gui.barelycrafting.tip_rotate": "Rotate",
+  "gui.barelycrafting.tip_mirror": "Mirror",
+  "gui.barelycrafting.tip_balance": "Balance",
+  "gui.barelycrafting.tip_refill": "Refill",
+  "gui.barelycrafting.tip_craft_all": "Craft All",
   "gui.barelycrafting.connected": "Connected",
   "gui.barelycrafting.side_down": "Below",
   "gui.barelycrafting.side_up": "Above",
@@ -14,11 +14,5 @@
   "gui.barelycrafting.side_south": "South",
   "gui.barelycrafting.side_west": "West",
   "gui.barelycrafting.side_east": "East",
-  "gui.barelycrafting.more_storages": "+%s more storages (used, not shown)",
-  "gui.barelycrafting.storages": "Neighbor storages: %s",
-  "gui.barelycrafting.no_storages": "No storage next to it",
-  "gui.barelycrafting.crafts_left": "Crafts left: %s",
-  "gui.barelycrafting.from_neighbors": "Refills from neighbors",
-  "gui.barelycrafting.in_neighbors": "In neighbors: %s",
-  "message.barelycrafting.missing": "Barely Crafting: no %s in your inventory or the storages next to the station."
+  "gui.barelycrafting.more_storages": "+%s"
 }

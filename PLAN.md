@@ -25,3 +25,7 @@
 ## Testing
 
 Unit tests of the pure logic (`GridMath`, `Pull`, `CraftMath`, `Settings`), a headless server self test on every layer (`scripts/server_check.py`), and a real-client tour on one Forge and one NeoForge layer through the isolated launcher (`scripts/client_tour.py`).
+
+## House rule: no hints
+
+No hint, tutorial or status-explainer text anywhere. Buttons get only their plain name as tooltip. Wiki has reference pages only.

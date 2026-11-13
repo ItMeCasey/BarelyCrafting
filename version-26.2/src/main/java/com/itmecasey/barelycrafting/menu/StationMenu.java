@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
@@ -506,7 +505,6 @@ public class StationMenu extends AbstractContainerMenu {
                 }
             }
         }
-        player.sendSystemMessage(Component.translatable("message.barelycrafting.missing", new ItemStack(item).getHoverName()));
     }
 
     // ---- Shift-click ----

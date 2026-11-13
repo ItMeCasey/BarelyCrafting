@@ -18,7 +18,6 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
     public static final int WIDTH = 176;
     public static final int HEIGHT = 198;
     private static final int TEXT = 0xFF404040;
-    private static final int GREEN = 0xFF1E6B2E;
     private static final int BLUE = 0xFF2A5FD0;
 
     public StationScreen(StationMenu menu, Inventory inventory, Component title) {
@@ -119,26 +118,12 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
         for (int i = 0; i < 6; i++) {
             g.fill(ax + 14 + i, ay + i, ax + 15 + i, ay + 10 - i, 0xFF8B8B8B);
         }
-        // Where ingredients come from.
-        int x = leftPos + StationMenu.GRID_X;
-        int y = topPos + 77;
-        int storages = menu.storages();
-        g.text(font, Component.translatable(storages > 0 ? "gui.barelycrafting.storages" : "gui.barelycrafting.no_storages", storages), x, y, TEXT, false);
-        if (menu.resultReady()) {
-            g.text(font, Component.translatable("gui.barelycrafting.crafts_left", menu.craftsLeft()), x, y + 9, TEXT, false);
-            if (menu.refillsFromNeighbors()) {
-                g.text(font, Component.translatable("gui.barelycrafting.from_neighbors"), x, y + 18, GREEN, false);
-            }
-        }
     }
 
     private static final String[] SIDES = {"down", "up", "north", "south", "west", "east"};
     private static final int VIEW_W = 178;
 
-    /**
-     * The panel left of the screen: the real contents of the connected storages (their first 27 slots each, up to four storages),
-     * under a header with the block, the side it touches and how many of its slots are in use.
-     */
+    /** The panel left of the screen: the real contents of the connected storages (first 27 slots of up to four), read-only. */
     private void drawConnected(GuiGraphicsExtractor g) {
         int n = menu.storages();
         int shown = Math.min(n, StationMenu.VIEW_SECTIONS);
@@ -147,20 +132,14 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
         int h = n == 0 ? 36 : 20 + shown * StationMenu.SECTION_H + (n > shown ? 12 : 0);
         panel(g, x, y, VIEW_W, h);
         g.text(font, Component.translatable("gui.barelycrafting.connected"), x + 8, y + 7, TEXT, false);
-        if (n == 0) {
-            g.text(font, Component.translatable("gui.barelycrafting.no_storages"), x + 62, y + 7, 0xFF6A6A6A, false);
-            return;
-        }
         for (int i = 0; i < shown; i++) {
             int top = y + 20 + i * StationMenu.SECTION_H;
             int side = menu.neighborSide(i);
             net.minecraft.world.level.block.Block block = menu.neighborBlock(i);
             g.item(new net.minecraft.world.item.ItemStack(block.asItem()), x + 7, top - 1);
             String where = side >= 0 && side < 6 ? Component.translatable("gui.barelycrafting.side_" + SIDES[side]).getString() : "";
-            String name = block.getName().getString();
-            String info = where + "  " + menu.neighborUsed(i) + "/" + menu.neighborTotal(i) + (menu.neighborTotal(i) > StationMenu.VIEW_PER ? " (first 27)" : "");
-            g.text(font, name, x + 27, top, TEXT, false);
-            g.text(font, info, x + 27, top + 9, 0xFF6A6A6A, false);
+            g.text(font, block.getName().getString(), x + 27, top, TEXT, false);
+            g.text(font, where + "  " + menu.neighborUsed(i) + "/" + menu.neighborTotal(i), x + 27, top + 9, 0xFF6A6A6A, false);
         }
         if (n > shown) {
             g.text(font, Component.translatable("gui.barelycrafting.more_storages", n - shown), x + 8, y + 22 + shown * StationMenu.SECTION_H - 4, 0xFF6A6A6A, false);
@@ -185,17 +164,5 @@ public class StationScreen extends AbstractContainerScreen<StationMenu> {
             g.fill(x + 1, y + 1, x + 4, y + 4, BLUE);
             g.fill(x + 1, y + 2, x + 4, y + 3, 0xFFFFFFFF);
         }
-    }
-
-    @Override
-    protected void extractTooltip(GuiGraphicsExtractor g, int mx, int my) {
-        if (hoveredSlot != null && hoveredSlot.index < StationMenu.GRID && hoveredSlot.hasItem() && menu.getCarried().isEmpty()
-                && menu.stockAt(hoveredSlot.index) > 0) {
-            List<Component> lines = new ArrayList<>(getTooltipFromContainerItem(hoveredSlot.getItem()));
-            lines.add(Component.translatable("gui.barelycrafting.in_neighbors", menu.stockAt(hoveredSlot.index)));
-            g.setComponentTooltipForNextFrame(font, lines, mx, my);
-            return;
-        }
-        super.extractTooltip(g, mx, my);
     }
 }
