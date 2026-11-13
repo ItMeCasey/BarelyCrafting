@@ -65,61 +65,80 @@ def tile():
 
 
 def draw_icon():
-    """An isometric Crafting Station: the block's own top and side textures projected on a cube, on the night tile."""
+    """A pedestal Crafting Station seen at an angle: a stone foot, a tapering column and a wide wooden top with the 3x3 grid, on the night tile."""
     tile()
-    tex = ROOT / "common/src/main/resources/assets/barelycrafting/textures/block"
-    top = Image.open(tex / "crafting_station_top.png").convert("RGBA")
-    side = Image.open(tex / "crafting_station_side.png").convert("RGBA")
-    # A simplified 10x10 top (frame, three by three dark cells, a gold pickaxe pattern) reads better at 32 pixels than the 16x16 one.
-    top = Image.new("RGBA", (10, 10), WOOD_HI + (255,))
-    for i in range(10):
-        for e in ((i, 0), (i, 9), (0, i), (9, i)):
-            top.putpixel(e, WOOD_LO + (255,))
-    for r in range(3):
-        for c in range(3):
-            for dy in range(2):
-                for dx in range(2):
-                    top.putpixel((1 + c * 3 + dx, 1 + r * 3 + dy), CELL + (255,))
-            if r == 0:
-                top.putpixel((1 + c * 3, 1), GOLD + (255,))
-                top.putpixel((2 + c * 3, 1), GOLD + (255,))
-            elif c == 1:
-                top.putpixel((4, 1 + r * 3), GOLD_LO + (255,))
-    L, T, R, B, H = (3, 11), (16, 4), (29, 11), (16, 18), 12
-    ox, oy = 0, 0
 
     def shade(c, f):
-        return (int(c[0] * f), int(c[1] * f), int(c[2] * f))
+        return (min(255, int(c[0] * f)), min(255, int(c[1] * f)), min(255, int(c[2] * f)))
 
-    cube = {}
-    for y in range(N):
-        for x in range(N):
-            dx, dy = x + 0.5 - L[0], y + 0.5 - L[1]
-            a = (dx / 13 + dy / 7) / 2
-            b = (dx / 13 - dy / 7) / 2
-            if 0 <= a < 1 and 0 <= b < 1:
-                cube[(x, y)] = shade(top.getpixel((min(9, int(a * 10)), min(9, int((1 - b) * 10)))), 1.0)
-                continue
-            if 0 <= x + 0.5 - L[0] < 13:
-                a = (x + 0.5 - L[0]) / 13
-                c = (y + 0.5 - L[1] - a * 7) / H
-                if 0 <= c < 1:
-                    cube[(x, y)] = shade(side.getpixel((int(a * 16), int(c * 16))), 0.78)
-                    continue
-            if 0 <= x + 0.5 - B[0] < 13:
-                a = (x + 0.5 - B[0]) / 13
-                c = (y + 0.5 - B[1] + a * 7) / H
-                if 0 <= c < 1:
-                    cube[(x, y)] = shade(side.getpixel((int(a * 16), int(c * 16))), 0.58)
+    def top_face(u, v):
+        """The grid seen from above: a wooden frame round a three by three field of dark cells, gold studs in the corners."""
+        e = min(u, v, 1 - u, 1 - v)
+        if e < 0.06:
+            return WOOD_LO
+        if (u < 0.2 or u > 0.8) and (v < 0.2 or v > 0.8) and e < 0.14 and min(abs(u - 0.5), abs(v - 0.5)) > 0.36:
+            return GOLD
+        if e < 0.1:
+            return WOOD_HI
+        gu, gv = (u - 0.1) / 0.8, (v - 0.1) / 0.8
+        if 0 <= gu < 1 and 0 <= gv < 1:
+            fu, fv = (gu * 3) % 1, (gv * 3) % 1
+            if 0.12 < fu < 0.88 and 0.12 < fv < 0.88:
+                return CELL
+            return WOOD
+        return WOOD
+    STONE, STONE_HI, STONE_LO = (122, 124, 140), (158, 160, 178), (84, 86, 104)
+
+    def stone(u, v):
+        return STONE_LO if 0.46 < v < 0.56 else (STONE_HI if v < 0.12 else STONE)
+
+    def planks(u, v):
+        return WOOD_HI if v < 0.2 else (WOOD_LO if v > 0.8 else WOOD)
+
+    # box: center x, top-face center y, half width s, side height h, face painters
+    boxes = [
+        (16, 21.5, 11, 3, stone, stone),    # foot
+        (16, 12.5, 6, 9, stone, stone),     # column
+        (16, 9.5, 13, 3, planks, None),     # top slab
+    ]
+    owner = {}
+    for n, (cx, yc, s, h, side, _) in enumerate(boxes):
+        for y in range(N):
+            for x in range(N):
+                px_, py_ = x + 0.5, y + 0.5
+                dx, dy = px_ - cx, py_ - yc
+                col = None
+                if abs(dx) / s + abs(dy) / (s / 2) <= 1:  # top face
+                    u = (dx / s + dy / (s / 2)) / 2 + 0.5
+                    v = (dx / s - dy / (s / 2)) / 2 + 0.5
+                    if n == 2:
+                        col = top_face(u, v)
+                    else:
+                        col = shade(STONE_HI, 0.95)
+                else:
+                    if -s <= dx < 0:
+                        ytop = yc + (dx + s) * 0.5
+                        v = (py_ - ytop) / h
+                        if 0 <= v < 1:
+                            col = shade(side((dx + s) / s, v), 0.82)
+                    elif 0 <= dx < s:
+                        ytop = yc + s / 2 - dx * 0.5
+                        v = (py_ - ytop) / h
+                        if 0 <= v < 1:
+                            col = shade(side(dx / s, v), 0.6)
+                if col is not None:
+                    px[y][x] = col
+                    owner[(x, y)] = n
+    # A gold band where the column meets the top, and a dark outline round the whole shape.
     outline = (30, 20, 10)
-    for (x, y), col in cube.items():
-        px[y][x] = col
-    for (x, y) in list(cube):
+    for (x, y), n in list(owner.items()):
         for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-            if (x + dx, y + dy) not in cube and 0 <= x + dx < N and 0 <= y + dy < N:
-                put(x + dx, y + dy, outline)
-    # A soft shadow line under the block, like the studio tiles' gold rule.
-    rect(6, 29, 25, 29, GOLD_LO)
+            q = (x + dx, y + dy)
+            if q not in owner and 0 <= q[0] < N and 0 <= q[1] < N:
+                put(q[0], q[1], outline)
+            elif q in owner and owner[q] < n and n == 2 and dy == -1:
+                put(x, y, shade(px[y][x], 0.85))
+    rect(6, 30, 25, 30, GOLD_LO)
 
 
 def save_icons():
