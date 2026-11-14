@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026.11.4
+
+- Config: the loader's standard config files replace the hand-written settings file: `config/barelycrafting-common.toml` (server values) and `config/barelycrafting-client.toml` (theme), with comments and ranges, and an in-game config screen on NeoForge. Forge 26.x has no config screen yet.
+- Migration: on the first start, when a toml file does not exist yet, every value from `config/barelycrafting.properties` (the file of 2026.11.1 to 2026.11.3) is imported into it and checked, then the old file is moved to `config/barelycrafting.properties.back` with a first line saying where and why it migrated (`.back2`, `.back3` if one exists). A file that cannot be read, or a value that is not valid, uses the default and leaves the old file where it is. Out-of-range numbers are clamped; everything is logged.
+
 ## 2026.11.3
 
 - JEI and REI: the plus button of a crafting recipe fills the grid of the station (NeoForge 26.2 and 26.3; JEI and REI have no Forge 26.x build). BEI, JEI and REI share one fill routine.

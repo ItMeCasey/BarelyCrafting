@@ -14,6 +14,11 @@ public final class NeoForgeClient {
     private NeoForgeClient() {
     }
 
+    /** The in-game config screen of the loader (Mods list, Config button). */
+    static void installConfigScreen(net.neoforged.fml.ModContainer container) {
+        container.registerExtensionPoint(net.neoforged.neoforge.client.gui.IConfigScreenFactory.class, net.neoforged.neoforge.client.gui.ConfigurationScreen::new);
+    }
+
     @SubscribeEvent
     public static void screens(RegisterMenuScreensEvent event) {
         event.register(ModContent.STATION_MENU, StationScreen::new);

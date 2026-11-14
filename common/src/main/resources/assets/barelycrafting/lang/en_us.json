@@ -16,5 +16,21 @@
   "gui.barelycrafting.side_east": "East",
   "gui.barelycrafting.more_storages": "+%s",
   "tooltip.barelycrafting.look.storages": "Connected storages: %s",
-  "tooltip.barelycrafting.look.last_craft": "Last craft: %s x %s"
+  "tooltip.barelycrafting.look.last_craft": "Last craft: %s x %s",
+  "barelycrafting.configuration.ui.theme": "Theme",
+  "barelycrafting.configuration.buttons.clear": "Clear button",
+  "barelycrafting.configuration.buttons.rotate": "Rotate button",
+  "barelycrafting.configuration.buttons.mirror": "Mirror button",
+  "barelycrafting.configuration.buttons.balance": "Balance button",
+  "barelycrafting.configuration.buttons.refill": "Refill button",
+  "barelycrafting.configuration.buttons.craft_all": "Craft All button",
+  "barelycrafting.configuration.neighbors.enabled": "Use neighbors",
+  "barelycrafting.configuration.neighbors.faces": "Sides",
+  "barelycrafting.configuration.neighbors.max": "Most neighbors",
+  "barelycrafting.configuration.craft.max_per_click": "Most crafts per click",
+  "barelycrafting.configuration.ui": "Screen",
+  "barelycrafting.configuration.buttons": "Buttons",
+  "barelycrafting.configuration.neighbors": "Neighbors",
+  "barelycrafting.configuration.craft": "Crafting",
+  "barelycrafting.configuration.title": "Barely Crafting"
 }

@@ -18,8 +18,13 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 /** NeoForge entry point for Minecraft 26.x. Registers the content and teaches the station to read NeoForge item handlers. */
 @Mod(BarelyCrafting.MODID)
 public final class NeoForgeBarelyCrafting {
-    public NeoForgeBarelyCrafting(IEventBus modBus) {
-        BarelyCrafting.init(FMLPaths.CONFIGDIR::get);
+    public NeoForgeBarelyCrafting(IEventBus modBus, net.neoforged.fml.ModContainer container) {
+        boolean client = net.neoforged.fml.loading.FMLEnvironment.getDist() == net.neoforged.api.distmarker.Dist.CLIENT;
+        BarelyCrafting.init(FMLPaths.CONFIGDIR::get, client, container.getModInfo().getVersion().toString(), org.slf4j.LoggerFactory.getLogger("BarelyCrafting")::info);
+        NeoForgeConfig.register(container, modBus, client);
+        if (client) {
+            NeoForgeClient.installConfigScreen(container);
+        }
         modBus.addListener(NeoForgeBarelyCrafting::register);
         com.itmecasey.barelycrafting.Crafter.craftedHook = net.neoforged.neoforge.event.EventHooks::firePlayerCraftingEvent;
         Inventories.loaderFinder = (level, pos, face) -> {

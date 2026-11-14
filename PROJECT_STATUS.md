@@ -1,13 +1,13 @@
 # Project Status
 <!-- status-format: 1 -->
 Updated: 2026-11-14
-Summary: Barely Crafting 2026.11.3 is built and checked (unit tests, headless self test, real ModJS script test and a real-client tour on all four Forge and NeoForge 26.2 and 26.3 builds); committed locally, release by the Project Manager.
+Summary: Barely Crafting 2026.11.4 is built and checked (unit tests, headless self test, real ModJS script test and a real-client tour on all four Forge and NeoForge 26.2 and 26.3 builds); committed locally, release by the Project Manager.
 Spend: none
 
 ## Foundation
 - [x] Plan and decisions written (PLAN.md) (w:2)
 - [x] Four Gradle modules (forge and neoforge for 26.2 and 26.3) with shared common/ and version-26.x folders (w:4)
-- [x] Version 2026.11.3 in all four modules (w:1)
+- [x] Version 2026.11.4 in all four modules (w:1)
 - [x] Local git repository with first commit (w:1)
 
 ## Crafting Station
@@ -28,6 +28,12 @@ Spend: none
 - [x] Real-client frames on NeoForge 26.2 and Forge 26.3 (isolated launcher): block, screen, tooltip over buttons, rotate, craft from chest (w:4)
 - [x] BEI plus button run in a real NeoForge 26.2 client through BEI's transfer host (frame gui_bei_plus) (w:2)
 - [x] Real-client tours on Forge 26.2 and NeoForge 26.3 (w:2)
+
+## Config
+- [x] Loader config files (ModConfigSpec and ForgeConfigSpec) built from one key list, pushed into the common settings on load and reload, tested headless on all four layers (w:3)
+- [x] One-time import of config/barelycrafting.properties (the file of every released version), checked and moved to .back, with fixtures from each release tag and invalid, clamped, empty, corrupt, partial, existing-backup and second-launch cases (w:3)
+- [x] In-game config screen on NeoForge (compiled; not opened in a client) (w:1)
+- [ ] In-game config screen on Forge: Forge 26.2 and 26.3 have no config screen class; add when it exists (w:1)
 
 ## Compatibility
 - [x] ModJS scripting: BarelyCrafting global (craft and button events, station snapshot, recipe rules), unit tests with Rhino, live-server checks, docs/scripting.md and wiki page (w:3)

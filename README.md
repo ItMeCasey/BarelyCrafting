@@ -21,7 +21,7 @@ Part of the Barely series by ItMeCasey Studios. MIT license. Wiki: https://itmec
 
 ## Config
 
-`config/barelycrafting.properties`, written with defaults on first start. See the wiki page "Config file".
+`config/barelycrafting-common.toml` and `config/barelycrafting-client.toml` (the loader's standard config, in-game screen on NeoForge). Settings from the older `barelycrafting.properties` are imported once and that file is moved to `barelycrafting.properties.back`. See the wiki page "Config".
 
 ## Versions
 

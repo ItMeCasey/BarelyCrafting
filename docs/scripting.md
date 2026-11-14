@@ -53,7 +53,7 @@ A refused recipe shows no result in the station. Crafting tables are not affecte
 
 | Call | Effect |
 |---|---|
-| `BarelyCrafting.setting("craft.max_per_click")` | reads one value of `barelycrafting.properties` as text (empty for an unknown key); read only |
+| `BarelyCrafting.setting("craft.max_per_click")` | reads one value of the config (for example `craft.max_per_click`) as text (empty for an unknown key); read only |
 | `BarelyCrafting.reset()` | removes every listener and recipe rule scripts registered |
 
 Call `BarelyCrafting.reset()` first in a server script so a script reload replaces the old listeners instead of adding a second copy.

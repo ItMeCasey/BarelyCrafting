@@ -40,7 +40,8 @@ class CraftMathTest {
     @Test
     void settingsReadOverridesAndKeepDefaults() throws IOException {
         assertTrue(Settings.getBool("buttons.rotate"));
-        Settings.load(new StringReader("buttons.rotate=false\nneighbors.max=3\nunknown.key=1\n"));
+        Settings.set("buttons.rotate", false);
+        Settings.set("neighbors.max", 3);
         assertEquals(false, Settings.getBool("buttons.rotate"));
         assertEquals(3, Settings.getInt("neighbors.max"));
         assertTrue(Settings.getBool("buttons.clear"));

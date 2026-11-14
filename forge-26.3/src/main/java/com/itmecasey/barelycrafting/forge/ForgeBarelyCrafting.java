@@ -19,7 +19,9 @@ import net.minecraftforge.registries.RegisterEvent;
 @Mod(BarelyCrafting.MODID)
 public final class ForgeBarelyCrafting {
     public ForgeBarelyCrafting(FMLJavaModLoadingContext context) {
-        BarelyCrafting.init(FMLPaths.CONFIGDIR::get);
+        boolean client = net.minecraftforge.fml.loading.FMLEnvironment.dist.isClient();
+        BarelyCrafting.init(FMLPaths.CONFIGDIR::get, client, context.getContainer().getModInfo().getVersion().toString(), org.slf4j.LoggerFactory.getLogger("BarelyCrafting")::info);
+        ForgeConfig.register(context, client);
         RegisterEvent.getBus(context.getModBusGroup()).addListener(ForgeBarelyCrafting::register);
         ForgeClient.install(context);
         com.itmecasey.barelycrafting.Crafter.craftedHook = net.minecraftforge.event.ForgeEventFactory::firePlayerCraftingEvent;
