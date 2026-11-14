@@ -1,6 +1,6 @@
 # Scripting with ModJS
 
-Barely Crafting adds a `BarelyCrafting` global to ModJS server scripts. It exists only when ModJS is installed; without ModJS nothing is loaded and nothing changes. Client scripts do not get the global (the crafting rules run on the server).
+Barely Crafting adds a `BarelyCrafting` global to ModJS server scripts and, through a small startup script, to KubeJS scripts. Both are optional; without them nothing is loaded and nothing changes. Client scripts do not get the global (the crafting rules run on the server).
 
 The station keeps crafting exactly as it does without scripts. Scripts can listen to what happens, read the station, and take recipes away from it. They cannot change the crafting rules.
 
@@ -59,6 +59,32 @@ A refused recipe shows no result in the station. Crafting tables are not affecte
 Call `BarelyCrafting.reset()` first in a server script so a script reload replaces the old listeners instead of adding a second copy.
 
 A listener that throws an error is logged as one line and skipped; the craft carries on.
+
+Editor typings for every call and event are in `docs/barelycrafting.d.ts` in the source. Java strings can come back as Java objects; compare them as `String(e.player()) == "Steve"`.
+
+## KubeJS
+
+When KubeJS is installed, Barely Crafting writes `kubejs/startup_scripts/barelycrafting.js` once (an existing file is never overwritten). It puts the same API object in `global.BarelyCrafting`, so everything on this page works the same way:
+
+```js
+// kubejs/server_scripts/station.js
+global.BarelyCrafting.reset();
+global.BarelyCrafting.denyResult("minecraft:tnt");
+global.BarelyCrafting.onCrafted(e => console.log(e.player() + " crafted " + e.result()));
+```
+
+Use `global.BarelyCrafting`, not a bare `BarelyCrafting`. Station recipes are the game's own crafting recipes, so recipes you add, change or remove with KubeJS or a datapack apply to the station too; `denyRecipe`, `denyResult` and `allowOnly` only take recipes away from the station and leave crafting tables alone.
+
+## Other mods
+
+Every craft at the station also posts the loader's own item-crafted event (`PlayerEvent.ItemCraftedEvent`, the one crafting tables post), on the server after the ingredients are used. A mod that counts crafts for quests, advancements or statistics needs no Barely Crafting code to see station crafts:
+
+```java
+// NeoForge
+NeoForge.EVENT_BUS.addListener((PlayerEvent.ItemCraftedEvent e) -> { /* e.getEntity(), e.getCrafting() */ });
+```
+
+A craft that a script cancels with `onBeforeCraft` posts nothing.
 
 ## Example
 

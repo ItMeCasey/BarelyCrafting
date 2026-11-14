@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026.11.3
+
+- JEI and REI: the plus button of a crafting recipe fills the grid of the station (NeoForge 26.2 and 26.3; JEI and REI have no Forge 26.x build). BEI, JEI and REI share one fill routine.
+- Show Me What This Is (all four builds) and Jade (NeoForge): lines for connected storages and the last craft.
+- Every craft at the station posts the loader's item-crafted event, so other mods that count crafts see it.
+- KubeJS: a startup script gives scripts the `BarelyCrafting` global (the same API as ModJS).
+- Editor typings for the global: docs/barelycrafting.d.ts.
+
 ## 2026.11.2
 
 - ModJS scripting (optional): a `BarelyCrafting` global for server scripts with `onBeforeCraft` and `onButton` (both cancellable), `onCrafted`, a read-only station snapshot (grid, result, connected storages), recipe rules (`denyRecipe`, `denyResult`, `allowOnly`), `setting` and `reset`. See docs/scripting.md.

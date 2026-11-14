@@ -1,13 +1,13 @@
 # Project Status
 <!-- status-format: 1 -->
-Updated: 2026-11-13
-Summary: Barely Crafting 2026.11.2 (2026.11.1 released) is built on Forge and NeoForge for 26.2 and 26.3 (tests, headless self test and real-client frames done); committed locally, not pushed, no GitHub repo, CurseForge project or wiki deploy yet.
+Updated: 2026-11-14
+Summary: Barely Crafting 2026.11.3 is built and checked (unit tests, headless self test, real ModJS script test and a real-client tour on all four Forge and NeoForge 26.2 and 26.3 builds); committed locally, release by the Project Manager.
 Spend: none
 
 ## Foundation
 - [x] Plan and decisions written (PLAN.md) (w:2)
 - [x] Four Gradle modules (forge and neoforge for 26.2 and 26.3) with shared common/ and version-26.x folders (w:4)
-- [x] Version 2026.11.2 in all four modules (w:1)
+- [x] Version 2026.11.3 in all four modules (w:1)
 - [x] Local git repository with first commit (w:1)
 
 ## Crafting Station
@@ -16,7 +16,7 @@ Spend: none
 - [x] Crafting from neighboring storages (six sides, set order, grid first then neighbors, refill) (w:5)
 - [x] Connected panel: block-icon tab per storage, real slots, per-storage wheel and bar scrolling, windowed sync, no cap on storages or slots; seen scrolled next to a dev-only 216-slot storage on NeoForge 26.2 and Forge 26.3 (w:4)
 - [x] Button column: clear, rotate, mirror, balance, refill, craft all, tooltips on top, config switches (w:4)
-- [x] BEI plus button fills the grid (compiled; the BEI transfer itself not run in a client) (w:2)
+- [x] BEI plus button fills the grid (w:2)
 
 - [x] Themes: minecraft (default) and modern, picked by ui.theme; seen on NeoForge 26.2 (minecraft) and Forge 26.3 (modern) (w:3)
 
@@ -24,15 +24,20 @@ Spend: none
 
 ## Testing
 - [x] Unit tests of the pure logic and the script bridge (all four modules) (w:3)
-- [x] Headless server self test, 42 checks, on all four layers (w:4)
+- [x] Headless server self test, 49 checks (56 with ModJS), on all four layers (w:4)
 - [x] Real-client frames on NeoForge 26.2 and Forge 26.3 (isolated launcher): block, screen, tooltip over buttons, rotate, craft from chest (w:4)
-- [ ] BEI plus button run in a real client (w:2)
-- [ ] Real client on Forge 26.2 and NeoForge 26.3 (w:2)
+- [x] BEI plus button run in a real NeoForge 26.2 client through BEI's transfer host (frame gui_bei_plus) (w:2)
+- [x] Real-client tours on Forge 26.2 and NeoForge 26.3 (w:2)
 
 ## Compatibility
 - [x] ModJS scripting: BarelyCrafting global (craft and button events, station snapshot, recipe rules), unit tests with Rhino, live-server checks, docs/scripting.md and wiki page (w:3)
-- [~] BEI done; JEI, REI and EMI plus buttons not written; SMWTI and Jade lines not written (known gaps) (w:3)
-- [ ] Craft events for other mods (ItemCraftedEvent) (w:2)
+- [x] BEI, JEI and REI plus buttons (one shared fill routine); JEI and REI on NeoForge 26.2 and 26.3 compiled only (w:3)
+- [ ] EMI plus button and JEI, REI and Jade on Forge: no 26.2 or 26.3 build exists yet; add when they release (w:2)
+- [x] SMWTI lines (all four builds) and Jade lines (NeoForge): connected storages, last craft (w:2)
+- [x] Craft event for other mods: the loader's item-crafted event is posted on every station craft, checked in the headless self test on all four layers (w:2)
+- [x] ModJS typings (docs/barelycrafting.d.ts) and a self test with the real ModJS jar and a real server script on all four layers (w:2)
+- [x] KubeJS startup-script bridge over the same API, unit tested through Rhino (w:2)
+- [ ] KubeJS bridge run inside KubeJS: no 26.2 or 26.3 build exists yet (w:1)
 
 ## Release and CI
 - [x] build.yml, release.yml, changed-builds-only plan_matrix.py with tests, issue templates (w:3)

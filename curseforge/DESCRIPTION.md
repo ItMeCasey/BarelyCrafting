@@ -11,8 +11,10 @@ Barely Crafting adds the Crafting Station for Forge and NeoForge on Minecraft 26
 - Server-side crafting: nothing is created or lost, leftovers like empty buckets are handled, and shift-click crafts as many as fit.
 - Six buttons left of the grid: Clear, Rotate, Mirror, Balance, Refill and Craft All, with tooltips. Each can be switched off in the config.
 - A Connected panel with one tab per neighboring storage shows its real slots and scrolls on its own.
-- BEI: the plus button of a recipe fills the grid.
-- ModJS scripting (optional): listen to crafts and button presses, read the station and its storages, and take recipes away from it.
+- BEI, JEI and REI: the plus button of a crafting recipe fills the grid (JEI and REI on NeoForge).
+- Show Me What This Is and Jade (NeoForge) show how many storages are connected and what the station crafted last.
+- ModJS and KubeJS scripting (optional): listen to crafts and button presses, read the station and its storages, and take recipes away from it.
+- Crafts at the station post the normal item-crafted event, so other mods that count crafts see them.
 
 ![FAQ](https://raw.githubusercontent.com/ItMeCasey/BarelyCrafting/main/branding/banners/h_faq.png)
 
