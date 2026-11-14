@@ -23,3 +23,7 @@ dist/
 docs/frames/tmp/
 neoforge_cmd.log
 *_compile.log
+
+# Python bytecode from the CI planner and tools
+__pycache__/
+*.pyc
