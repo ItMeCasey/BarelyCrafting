@@ -36,13 +36,13 @@ Spend: none
 
 ## Release and CI
 - [x] build.yml, release.yml, changed-builds-only plan_matrix.py with tests, issue templates (w:3)
-- [ ] GitHub repository, push, CI run (Project Manager) (w:2)
-- [ ] CurseForge project and project id, secrets (Project Manager) (w:2)
-- [ ] Release 2026.11.1 tag and upload (Project Manager) (w:2)
+- [x] GitHub repository, push, CI run (Project Manager; repo created and CI green 2026-11-13) (w:2)
+- [x] CurseForge project and project id, secrets (Project Manager; project 1803251, 2026-11-13) (w:2)
+- [x] Release 2026.11.1 tag and upload (Project Manager; 2026.11.2 released too, 2026-11-13) (w:2)
 
 ## Documentation and branding
 - [x] README, CHANGELOG, LICENSE (MIT), PLAN, LISTING, CurseForge description (w:2)
 - [x] Icon (3D station) and SMWTI-style banners (w:2)
 - [x] Wiki pages written in the itmecasey.com site folder (not deployed) (w:3)
-- [ ] Wiki deployed (Project Manager, ask Casey first) (w:1)
-- [ ] Added to the Command Center projects.json (w:1)
+- [x] Wiki deployed (Project Manager, 2026-11-13) (w:1)
+- [x] Added to the Command Center projects.json (w:1)
