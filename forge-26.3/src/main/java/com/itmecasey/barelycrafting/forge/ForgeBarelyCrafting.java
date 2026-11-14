@@ -22,6 +22,7 @@ public final class ForgeBarelyCrafting {
         BarelyCrafting.init(FMLPaths.CONFIGDIR::get);
         RegisterEvent.getBus(context.getModBusGroup()).addListener(ForgeBarelyCrafting::register);
         ForgeClient.install(context);
+        com.itmecasey.barelycrafting.Crafter.craftedHook = net.minecraftforge.event.ForgeEventFactory::firePlayerCraftingEvent;
         Inventories.loaderFinder = (level, pos, face) -> {
             BlockEntity be = level.getBlockEntity(pos);
             if (be == null) {

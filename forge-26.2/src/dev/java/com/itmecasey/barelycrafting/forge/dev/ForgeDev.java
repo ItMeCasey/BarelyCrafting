@@ -14,6 +14,7 @@ public final class ForgeDev {
     public static void install(Object context) {
         if (SelfTest.requested()) {
             ServerStartedEvent.BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
+            net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent.BUS.addListener((net.minecraftforge.event.entity.player.PlayerEvent.ItemCraftedEvent e) -> SelfTest.craftedEvents.incrementAndGet());
         }
         if (FMLEnvironment.dist.isClient() && System.getenv("BARELYCRAFTING_SHOTS") != null) {
             TickEvent.ClientTickEvent.Post.BUS.addListener((TickEvent.ClientTickEvent.Post e) -> ShotTour.tick());

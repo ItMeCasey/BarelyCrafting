@@ -31,6 +31,19 @@ public final class Crafter {
     private Crafter() {
     }
 
+    /** Called once for every craft the station completes, on the server, after the ingredients are used. */
+    @FunctionalInterface
+    public interface CraftedHook {
+        void crafted(ServerPlayer player, ItemStack crafted, Container grid);
+    }
+
+    /**
+     * Each loader sets this to post its own item-crafted event ({@code PlayerEvent.ItemCraftedEvent}), the event crafting-table
+     * crafts post, so other mods that count crafts (quests, advancements, statistics) also see crafts made at the station.
+     */
+    public static volatile CraftedHook craftedHook = (player, crafted, grid) -> {
+    };
+
     private static CraftingInput input(Container grid) {
         List<ItemStack> items = new ArrayList<>(Math.max(grid.getContainerSize(), 9));
         for (int i = 0; i < 9; i++) {
@@ -130,7 +143,12 @@ public final class Crafter {
             stash(extra, neighbors, player);
         }
         out.onCraftedBy(player, out.getCount());
+        craftedHook.crafted(player, out, grid);
         if (station != null) {
+            if (level.getBlockEntity(station) instanceof com.itmecasey.barelycrafting.block.StationBlockEntity be) {
+                be.lastCrafted = out.copy();
+                be.setChanged();
+            }
             ScriptEvents.fire(ScriptEvents.CRAFTED, () -> StationSnapshot.of(level, station, grid),
                     player.getName().getString(), player.getStringUUID(), outId, out.getCount(), "");
         }

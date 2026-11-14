@@ -21,6 +21,7 @@ public final class NeoForgeBarelyCrafting {
     public NeoForgeBarelyCrafting(IEventBus modBus) {
         BarelyCrafting.init(FMLPaths.CONFIGDIR::get);
         modBus.addListener(NeoForgeBarelyCrafting::register);
+        com.itmecasey.barelycrafting.Crafter.craftedHook = net.neoforged.neoforge.event.EventHooks::firePlayerCraftingEvent;
         Inventories.loaderFinder = (level, pos, face) -> {
             ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, pos, face);
             return handler == null ? null : new HandlerView(handler);

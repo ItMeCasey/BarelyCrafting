@@ -12,6 +12,8 @@ import net.minecraft.world.level.storage.ValueOutput;
 /** Holds the 3x3 grid. The items stay here when the screen closes and drop only when the block is broken. */
 public class StationBlockEntity extends BlockEntity {
     public final GridContainer grid = new GridContainer(this::setChanged);
+    /** What this station crafted last (one craft's result); empty until it crafts something. Shown by SMWTI and Jade. */
+    public ItemStack lastCrafted = ItemStack.EMPTY;
 
     public StationBlockEntity(BlockPos pos, BlockState state) {
         super(ModContent.STATION, pos, state);
@@ -24,6 +26,9 @@ public class StationBlockEntity extends BlockEntity {
         ValueOutput.TypedOutputList<ItemStack> list = output.list("grid", ItemStack.OPTIONAL_CODEC);
         for (int i = 0; i < grid.getContainerSize(); i++) {
             list.add(grid.getItem(i));
+        }
+        if (!lastCrafted.isEmpty()) {
+            output.store("last_crafted", ItemStack.OPTIONAL_CODEC, lastCrafted);
         }
     }
 
@@ -39,6 +44,7 @@ public class StationBlockEntity extends BlockEntity {
         for (; slot < grid.getContainerSize(); slot++) {
             grid.setItem(slot, ItemStack.EMPTY);
         }
+        lastCrafted = input.read("last_crafted", ItemStack.OPTIONAL_CODEC).orElse(ItemStack.EMPTY);
     }
 
     @Override

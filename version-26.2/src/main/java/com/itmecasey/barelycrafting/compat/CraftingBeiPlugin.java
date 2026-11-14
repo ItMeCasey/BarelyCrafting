@@ -7,9 +7,8 @@ import com.itmecasey.bei.api.IRecipeTransferHandler;
 import com.itmecasey.bei.api.ITransferRegistration;
 import com.itmecasey.bei.api.TransferContext;
 import com.itmecasey.bei.api.TransferState;
+import java.util.ArrayList;
 import java.util.List;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -35,45 +34,19 @@ public class CraftingBeiPlugin implements IBeiPlugin {
 
             @Override
             public boolean transfer(TransferContext<StationMenu> ctx) {
-                Minecraft minecraft = Minecraft.getInstance();
-                if (minecraft.player == null || minecraft.gameMode == null) {
-                    return false;
-                }
-                StationMenu menu = ctx.menu();
                 int width = Math.max(0, ctx.recipe().width());
-                int[] raw = new int[StationMenu.GRID];
+                List<List<ItemStack>> cells = new ArrayList<>();
+                for (int i = 0; i < StationMenu.GRID; i++) {
+                    cells.add(List.of());
+                }
                 for (int i = 0; i < ctx.recipe().inputs().size(); i++) {
                     int cell = width > 0 ? (i / width) * 3 + (i % width) : i;
                     if (cell >= 0 && cell < StationMenu.GRID) {
-                        ItemStack pick = pick(ctx.recipe().inputs().get(i), minecraft);
-                        raw[cell] = pick.isEmpty() ? 0 : BuiltInRegistries.ITEM.getId(pick.getItem());
+                        cells.set(cell, ctx.recipe().inputs().get(i));
                     }
                 }
-                minecraft.gameMode.handleInventoryButtonClick(menu.containerId, StationMenu.BTN_FILL_START);
-                for (int cell = 0; cell < StationMenu.GRID; cell++) {
-                    if (raw[cell] > 0) {
-                        minecraft.gameMode.handleInventoryButtonClick(menu.containerId, StationMenu.BTN_FILL + cell * StationMenu.FILL_STRIDE + raw[cell]);
-                    }
-                }
-                return true;
+                return StationTransfer.fill(ctx.menu(), cells);
             }
         });
-    }
-
-    /** Of the acceptable items, one you carry; else the first one. */
-    private static ItemStack pick(List<ItemStack> candidates, Minecraft minecraft) {
-        ItemStack first = ItemStack.EMPTY;
-        for (ItemStack c : candidates) {
-            if (c.isEmpty()) {
-                continue;
-            }
-            if (first.isEmpty()) {
-                first = c;
-            }
-            if (minecraft.player.getInventory().contains(s -> ItemStack.isSameItem(s, c))) {
-                return c;
-            }
-        }
-        return first;
     }
 }

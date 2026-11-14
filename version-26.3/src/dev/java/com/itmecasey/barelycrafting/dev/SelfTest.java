@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
  * {@code SELFTEST DONE failures=N}.
  */
 public final class SelfTest {
+    /** Counts the loader's item-crafted events (the loader dev class listens and bumps this). */
+    public static final java.util.concurrent.atomic.AtomicInteger craftedEvents = new java.util.concurrent.atomic.AtomicInteger();
+
     private static final Logger LOGGER = LoggerFactory.getLogger("BarelyCrafting");
     private static ServerLevel level;
     private static ServerPlayer player;
@@ -66,6 +69,9 @@ public final class SelfTest {
             resultEdgeCases(new BlockPos(x, y, z + 44));
             pickaxeConservation(new BlockPos(x, y, z + 48));
             connectedList(new BlockPos(x, y, z + 52));
+            if (System.getenv("BARELYCRAFTING_MODJS") != null) {
+                modJsScript(new BlockPos(x, y, z + 60));
+            }
             scriptHooks(new BlockPos(x, y, z + 56));
         } catch (RuntimeException e) {
             LOGGER.error("SELFTEST error", e);
@@ -438,7 +444,9 @@ public final class SelfTest {
         com.itmecasey.barelycrafting.script.ScriptEvents.clear();
         com.itmecasey.barelycrafting.script.ScriptHooks.clear();
         try {
-            verdict("modjs_global_absent_without_modjs", !com.itmecasey.barelycrafting.script.ModJsBridge.install(new com.itmecasey.barelycrafting.script.BarelyCraftingApi()), "ModJS is not on this classpath");
+            boolean withModJs = System.getenv("BARELYCRAFTING_MODJS") != null;
+            verdict(withModJs ? "modjs_bridge_installs_with_modjs" : "modjs_global_absent_without_modjs",
+                    com.itmecasey.barelycrafting.script.ModJsBridge.install(new com.itmecasey.barelycrafting.script.BarelyCraftingApi()) == withModJs, "ModJS present=" + withModJs);
             com.itmecasey.barelycrafting.script.BarelyCraftingApi api = new com.itmecasey.barelycrafting.script.BarelyCraftingApi();
             StationBlockEntity be = station(p);
             chest(p.east()).setItem(0, new ItemStack(Items.OAK_PLANKS, 8));
@@ -452,7 +460,9 @@ public final class SelfTest {
                 }
             });
             api.onCrafted(e -> seen[1] = e.result() + "x" + e.count());
+            int craftedBefore = craftedEvents.get();
             menu.clicked(StationMenu.RESULT, 0, ContainerInput.PICKUP, player);
+            verdict("loader_item_crafted_event_posted_for_station_craft", craftedEvents.get() == craftedBefore + 1, "events=" + (craftedEvents.get() - craftedBefore));
             verdict("script_events_fire_with_station_data", menu.getCarried().is(Items.CRAFTING_TABLE) && "1 minecraft:oak_planks|1|1 minecraft:crafting_table|minecraft:crafting_table".equals(seen[0])
                     && "minecraft:crafting_tablex1".equals(seen[1]), "before=" + seen[0] + " crafted=" + seen[1]);
             menu.setCarried(ItemStack.EMPTY);
@@ -482,5 +492,58 @@ public final class SelfTest {
             com.itmecasey.barelycrafting.script.ScriptEvents.clear();
             com.itmecasey.barelycrafting.script.ScriptHooks.clear();
         }
+    }
+
+    /**
+     * With a real ModJS jar (BARELYCRAFTING_MODJS set by scripts/server_check.py) the server script modjs/server_scripts/barelycrafting_selftest.js
+     * has run before this: every kind of call of the BarelyCrafting global (rules, before-craft, button and crafted listeners) must act on real crafts.
+     */
+    private static void modJsScript(BlockPos p) {
+        area(p);
+        ServerPlayer scripted = new ServerPlayer(player.level().getServer(), level, new com.mojang.authlib.GameProfile(UUID.randomUUID(), "scripted"), ClientInformation.createDefault());
+        StationBlockEntity be = station(p);
+        chest(p.east()).setItem(0, new ItemStack(Items.OAK_PLANKS, 64));
+        StationMenu menu = new StationMenu(8, scripted.getInventory(), be);
+        be.grid.setItem(0, new ItemStack(Items.COAL, 1));
+        be.grid.setItem(3, new ItemStack(Items.STICK, 1));
+        menu.broadcastChanges();
+        verdict("modjs_script_denyResult_hides_the_torch", Crafter.preview(level, be.grid).isEmpty(), "preview=" + Crafter.preview(level, be.grid));
+        be.grid.clearContent();
+        for (int i : new int[] {0, 2, 3, 5, 6, 8}) {
+            be.grid.setItem(i, new ItemStack(Items.OAK_PLANKS, 1));
+        }
+        be.grid.setItem(1, new ItemStack(Items.OAK_SLAB, 1));
+        be.grid.setItem(7, new ItemStack(Items.OAK_SLAB, 1));
+        menu.broadcastChanges();
+        verdict("modjs_script_denyRecipe_hides_the_barrel", Crafter.preview(level, be.grid).isEmpty(), "preview=" + Crafter.preview(level, be.grid));
+        be.grid.clearContent();
+        be.grid.setItem(0, new ItemStack(Items.OAK_PLANKS, 2));
+        be.grid.setItem(3, new ItemStack(Items.OAK_PLANKS, 2));
+        menu.broadcastChanges();
+        int before = count(be.grid, Items.OAK_PLANKS);
+        menu.clicked(StationMenu.RESULT, 0, ContainerInput.PICKUP, scripted);
+        verdict("modjs_script_onBeforeCraft_cancels_the_craft", menu.getCarried().isEmpty() && count(be.grid, Items.OAK_PLANKS) == before, "carried=" + menu.getCarried());
+        be.grid.clearContent();
+        be.grid.setItem(0, new ItemStack(Items.OAK_PLANKS, 5));
+        menu.clickMenuButton(scripted, StationMenu.BTN_CLEAR);
+        verdict("modjs_script_onButton_cancels_clear", count(be.grid, Items.OAK_PLANKS) == 5, "planks=" + count(be.grid, Items.OAK_PLANKS));
+        menu.clickMenuButton(player, StationMenu.BTN_CLEAR);
+        verdict("modjs_script_leaves_other_players_alone", count(be.grid, Items.OAK_PLANKS) == 0, "planks=" + count(be.grid, Items.OAK_PLANKS));
+        be.grid.clearContent();
+        planks2x2(be, 1);
+        menu.broadcastChanges();
+        StationMenu other = new StationMenu(9, player.getInventory(), be);
+        other.broadcastChanges();
+        other.clicked(StationMenu.RESULT, 0, ContainerInput.PICKUP, player);
+        verdict("modjs_script_other_player_crafts_normally", other.getCarried().is(Items.CRAFTING_TABLE), "carried=" + other.getCarried());
+        other.setCarried(ItemStack.EMPTY);
+        planks2x2(be, 1);
+        menu.broadcastChanges();
+        planks2x2(be, 1);
+        menu.broadcastChanges();
+        menu.clicked(StationMenu.RESULT, 0, ContainerInput.PICKUP, scripted);
+        verdict("modjs_script_onCrafted_ran_with_station_data", menu.getCarried().is(Items.CRAFTING_TABLE)
+                && !com.itmecasey.barelycrafting.script.ScriptHooks.allowed("x", "minecraft:marker_" + p.getX()), "carried=" + menu.getCarried() + " preview=" + Crafter.preview(level, be.grid) + " grid0=" + be.grid.getItem(0)
+                + " allowedMarker=" + com.itmecasey.barelycrafting.script.ScriptHooks.allowed("x", "minecraft:marker_" + p.getX()));
     }
 }

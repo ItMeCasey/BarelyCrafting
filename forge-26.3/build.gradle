@@ -88,6 +88,12 @@ dependencies {
     compileOnly files('libs/bei-forge-26.3-2026.11.7-api.jar')
 }
 
+// SMWTI (Show Me What This Is) is our optional look-at overlay. Only its API is compiled against; the plugin class is never
+// loaded unless SMWTI is installed.
+dependencies {
+    compileOnly files('libs/smwti-api-26.3.jar')
+}
+
 // Development tools (headless self test, screenshot tour) live in src/dev folders and only build with -PdevTools, so a normal
 // build and the release jars never contain them.
 if (project.hasProperty('devTools')) {
@@ -99,5 +105,12 @@ if (project.hasProperty('devTools')) {
 if (project.hasProperty('beiJar')) {
     dependencies {
         runtimeOnly files(project.property('beiJar'))
+    }
+}
+
+// -PmodjsJar=<path> adds a ModJS jar to the dev client and server (the script check runs real ModJS scripts against the BarelyCrafting global).
+if (project.hasProperty('modjsJar')) {
+    dependencies {
+        runtimeOnly files(project.property('modjsJar'))
     }
 }

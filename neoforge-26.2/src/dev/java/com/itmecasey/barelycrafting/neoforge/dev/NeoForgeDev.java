@@ -17,6 +17,7 @@ public final class NeoForgeDev {
     public static void install(IEventBus modBus) {
         if (SelfTest.requested()) {
             NeoForge.EVENT_BUS.addListener((ServerStartedEvent e) -> SelfTest.run(e.getServer()));
+            NeoForge.EVENT_BUS.addListener((net.neoforged.neoforge.event.entity.player.PlayerEvent.ItemCraftedEvent e) -> SelfTest.craftedEvents.incrementAndGet());
         }
         if (FMLEnvironment.getDist() == Dist.CLIENT && System.getenv("BARELYCRAFTING_SHOTS") != null) {
             NeoForge.EVENT_BUS.addListener((ClientTickEvent.Post e) -> ShotTour.tick());

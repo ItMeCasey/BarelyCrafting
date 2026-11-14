@@ -250,6 +250,19 @@ public final class ShotTour {
             LOGGER.info("BARELYCRAFTING-SHOTS after shift-click: pickaxes={} cobbleInChest={} gridEmpty={}", pick, cobble, be.grid.isEmpty());
         }));
         shoot("gui_after_craft", 15);
+        if (System.getenv("BARELYCRAFTING_BEI") != null) {
+            // The plus button of BEI for a stick recipe, through BEI's own transfer host and our registered handler (not the popup click).
+            then(3, () -> beiPlus());
+            then(25, () -> onServer(server -> {
+                StationBlockEntity be = (StationBlockEntity) server.overworld().getBlockEntity(station);
+                StringBuilder grid = new StringBuilder();
+                for (int i = 0; i < 9; i++) {
+                    grid.append(be.grid.getItem(i).isEmpty() ? "-" : be.grid.getItem(i).getCount() + "x" + be.grid.getItem(i).getItem()).append(' ');
+                }
+                LOGGER.info("BARELYCRAFTING-SHOTS bei plus grid: {}", grid.toString().trim());
+            }));
+            shoot("gui_bei_plus", 10);
+        }
         // The big storage: its tab, then the wheel scrolls its window down to row 12 and the mouse rests on an item.
         then(3, () -> press(StationMenu.BTN_TAB));
         then(15, () -> wheel(12));
@@ -319,6 +332,25 @@ public final class ShotTour {
     }
 
     // ---- helpers ----
+
+    /** Runs BEI's plus button for a two-plank stick recipe on the open station, by reflection (BEI is only on the dev classpath with -PbeiJar). */
+    private static void beiPlus() {
+        try {
+            Class<?> host = Class.forName("com.itmecasey.bei.plugin.TransferHost");
+            Class<?> recipeClass = Class.forName("com.itmecasey.bei.index.BeiRecipe");
+            ItemStack planks = new ItemStack(Items.OAK_PLANKS);
+            Object recipe = recipeClass.getConstructor(String.class, String.class, int.class, java.util.List.class, java.util.List.class, java.util.List.class)
+                    .newInstance("minecraft:stick", "ShapedCrafting", 1, java.util.List.of(java.util.List.of(planks), java.util.List.of(planks)),
+                            java.util.List.of(new ItemStack(Items.STICK, 4)), java.util.List.of());
+            Object view = host.getMethod("view", net.minecraft.world.inventory.AbstractContainerMenu.class, recipeClass, boolean.class, boolean.class, boolean.class)
+                    .invoke(null, menu(), recipe, false, false, false);
+            Object done = host.getMethod("transfer", net.minecraft.world.inventory.AbstractContainerMenu.class, recipeClass, boolean.class, boolean.class)
+                    .invoke(null, menu(), recipe, false, false);
+            LOGGER.info("BARELYCRAFTING-SHOTS bei plus: view={} transferred={}", view, done);
+        } catch (ReflectiveOperationException e) {
+            LOGGER.error("BARELYCRAFTING-SHOTS bei plus failed", e);
+        }
+    }
 
     private static void press(int id) {
         Minecraft minecraft = Minecraft.getInstance();

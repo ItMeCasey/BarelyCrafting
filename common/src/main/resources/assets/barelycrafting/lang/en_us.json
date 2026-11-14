@@ -14,5 +14,7 @@
   "gui.barelycrafting.side_south": "South",
   "gui.barelycrafting.side_west": "West",
   "gui.barelycrafting.side_east": "East",
-  "gui.barelycrafting.more_storages": "+%s"
+  "gui.barelycrafting.more_storages": "+%s",
+  "tooltip.barelycrafting.look.storages": "Connected storages: %s",
+  "tooltip.barelycrafting.look.last_craft": "Last craft: %s x %s"
 }

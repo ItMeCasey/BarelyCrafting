@@ -20,6 +20,14 @@ PORTS = {
     "neoforge-26.2": 8730, "forge-26.2": 8731, "neoforge-26.3": 8732, "forge-26.3": 8733,
 }
 TIMEOUT = 420
+# The server script the ModJS check runs: it uses every kind of call of the BarelyCrafting global.
+MODJS_SCRIPT = """BarelyCrafting.reset();
+BarelyCrafting.denyResult('minecraft:torch');
+BarelyCrafting.denyRecipe('minecraft:barrel');
+BarelyCrafting.onBeforeCraft(e => { if (String(e.player()) == 'scripted' && String(e.result()) == 'minecraft:stick') e.cancel(); });
+BarelyCrafting.onButton(e => { if (String(e.player()) == 'scripted' && String(e.button()) == 'clear') e.cancel(); });
+BarelyCrafting.onCrafted(e => { if (String(e.player()) == 'scripted') BarelyCrafting.denyResult('minecraft:marker_' + e.station().x()); });
+"""
 # Real load problems: the loader could not load a mod, or an error names this mod. Netty and log4j probe lines about native
 # transports on the wrong OS ("Only supported on Linux") are normal noise on Windows and are ignored.
 ERROR_WORDS = re.compile(r"(ModLoadingException|Failed to load mod|Encountered an unexpected exception|FATAL)")
@@ -36,7 +44,20 @@ def check(layer):
         "motd=BarelyCrafting server check\nmax-tick-time=-1\n")
     log = []
     env = dict(os.environ, BARELYCRAFTING_SELFTEST="1")
-    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runServer", "--no-daemon", "-q", "-PdevTools"], cwd=folder, env=env,
+    # BARELYCRAFTING_MODJS_JAR_<LAYER> (for example BARELYCRAFTING_MODJS_JAR_NEOFORGE_26_2) loads a real ModJS jar and a script
+    # that the self test then checks (the global exists, a script rule and a script listener act on a real craft).
+    modjs = os.environ.get("BARELYCRAFTING_MODJS_JAR_" + layer.upper().replace("-", "_").replace(".", "_"), "")
+    extra = []
+    scripts = run / "modjs" / "server_scripts"
+    marker = scripts / "barelycrafting_selftest.js"
+    if modjs:
+        scripts.mkdir(parents=True, exist_ok=True)
+        marker.write_text(MODJS_SCRIPT, encoding="utf-8")
+        extra = ["-PmodjsJar=" + modjs]
+        env["BARELYCRAFTING_MODJS"] = "1"
+    elif marker.exists():
+        marker.unlink()
+    proc = subprocess.Popen(["cmd", "/c", str(folder / "gradlew.bat"), "runServer", "--no-daemon", "-q", "-PdevTools"] + extra, cwd=folder, env=env,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, errors="replace")
 
     def pump():

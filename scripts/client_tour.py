@@ -18,6 +18,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 LAUNCH = r"C:\Users\casey\.claude\tools\launch-isolated.ps1"
+BASH = r"C:\Program Files\Git\usr\bin\bash.exe"
 TIMEOUT = 900
 OPTIONS = {
     "tutorialStep": "none", "onboardAccessibility": "false", "skipMultiplayerWarning": "true", "joinedFirstServer": "true",
@@ -57,7 +58,14 @@ def tour(layer):
     if latest.exists():
         latest.unlink()
     theme = os.environ.get('BARELYCRAFTING_THEME', '')
-    command = r'set BARELYCRAFTING_SHOTS=1&& set BARELYCRAFTING_THEME=' + theme + r'&& .\gradlew.bat runClient --no-daemon -q -PdevTools -PwindowSize=1904x1041'
+    # BARELYCRAFTING_BEI_JAR=<path to a full BEI jar> also loads BEI and runs its plus button for a stick recipe (the tour calls BEI's
+    # transfer host through reflection; it does not click BEI's popup).
+    bei = os.environ.get('BARELYCRAFTING_BEI_JAR', '')
+    bei_env = (r'set BARELYCRAFTING_BEI=1&& ') if bei else ''
+    bei_arg = (' -PbeiJar=' + bei) if bei else ''
+    # The client holds one of the global Gradle slots (at most 3 builds on this PC) for as long as it runs.
+    command = (r'set BARELYCRAFTING_SHOTS=1&& ' + bei_env + r'set BARELYCRAFTING_THEME=' + theme
+               + r'&& "' + BASH + r'" /c/Users/casey/.claude/tools/gradle-slot.sh ./gradlew runClient --no-daemon -q -PdevTools -PwindowSize=1904x1041' + bei_arg)
     start = time.time()
     subprocess.run(["powershell", "-NoProfile", "-File", LAUNCH, "-Run", "-WorkDir", str(folder), "-Command", command], check=True)
     done = False
