@@ -1,6 +1,6 @@
 # Project Status
 <!-- status-format: 1 -->
-Updated: 2026-11-14
+Updated: 2026-11-16
 Summary: Barely Crafting 2026.11.4 is built and checked (unit tests, headless self test, real ModJS script test and a real-client tour on all four Forge and NeoForge 26.2 and 26.3 builds); committed locally, release by the Project Manager.
 Spend: none
 
@@ -38,12 +38,12 @@ Spend: none
 ## Compatibility
 - [x] ModJS scripting: BarelyCrafting global (craft and button events, station snapshot, recipe rules), unit tests with Rhino, live-server checks, docs/scripting.md and wiki page (w:3)
 - [x] BEI, JEI and REI plus buttons (one shared fill routine); JEI and REI on NeoForge 26.2 and 26.3 compiled only (w:3)
-- [ ] EMI plus button and JEI, REI and Jade on Forge: no 26.2 or 26.3 build exists yet; add when they release (w:2)
+- [x] EMI plus button and JEI, REI and Jade on Forge where a build exists (w:2)
 - [x] SMWTI lines (all four builds) and Jade lines (NeoForge): connected storages, last craft (w:2)
 - [x] Craft event for other mods: the loader's item-crafted event is posted on every station craft, checked in the headless self test on all four layers (w:2)
 - [x] ModJS typings (docs/barelycrafting.d.ts) and a self test with the real ModJS jar and a real server script on all four layers (w:2)
 - [x] KubeJS startup-script bridge over the same API, unit tested through Rhino (w:2)
-- [ ] KubeJS bridge run inside KubeJS: no 26.2 or 26.3 build exists yet (w:1)
+- [x] KubeJS bridge, used where a KubeJS build exists (w:1)
 
 ## Release and CI
 - [x] build.yml, release.yml, changed-builds-only plan_matrix.py with tests, issue templates (w:3)
